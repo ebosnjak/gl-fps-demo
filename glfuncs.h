@@ -58,6 +58,6 @@ extern PFNGLGETUNIFORMLOCATIONPROC			glGetUniformLocation;
 extern PFNGLVERTEXATTRIBDIVISORPROC			glVertexAttribDivisor;
 extern PFNGLDRAWARRAYSINSTANCEDPROC			glDrawArraysInstanced;
 
-void LoadGLFuncs();
+void LoadGLProcs();
 
 #endif

@@ -1,7 +1,8 @@
 #include "game.h"
 
 int main() {
-    Game_Start(1280, 720);
+    Game g(1280, 720);
+    g.Run();
     
     return 0;
 }
