@@ -133,6 +133,8 @@ public:
 
     bool isRunning;
 
+    int windowWidth, windowHeight;
+
     uint8_t mouseState;     // bits represent: scrollDown|scrollUp|lastRMB|lastMMB|lastLMB|RMB|MMB|LMB
     int mouseX, mouseY, mouseGlobalX, mouseGlobalY;
     uint8_t keyState[32], lastKeyState[32];
@@ -144,6 +146,7 @@ public:
     virtual void Init() = 0;
     virtual void Update(float deltaTime) = 0;
     virtual void Draw() = 0;
+    virtual void Cleanup() = 0;
 
     bool IsKeyDown(Keys key);
     bool IsKeyUp(Keys key);

@@ -1,10 +1,13 @@
 #include "application.h"
 
 Application::Application(int w, int h) {
+    windowWidth = w;
+    windowHeight = h;
+
     dpy = XOpenDisplay(NULL);
     wnd = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 
                                     100, 100,   // (x, y)
-                                    w, h,  // width, height
+                                    windowWidth, windowHeight,  // width, height
                                     0, 0,       // border width and height
                                     0);         // background
     
@@ -49,7 +52,7 @@ Application::Application(int w, int h) {
         return;
     }
 
-    long eventMask = KeyPressMask | KeyReleaseMask | KeymapStateMask | 
+    long eventMask = KeyPressMask | KeyReleaseMask | KeymapStateMask | StructureNotifyMask |
                     PointerMotionMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask;
     
     XSelectInput(dpy, wnd, eventMask);
@@ -67,6 +70,8 @@ Application::Application(int w, int h) {
     LoadGLProcs();
 
     std::cout << "Success: Loaded GL functions" << std::endl;
+
+    glViewport(0, 0, windowWidth, windowHeight);
 }
 
 Application::~Application() {
@@ -104,6 +109,13 @@ void Application::Run() {
                 if (evt.xclient.data.l[0] == wmDeleteWindow) {
                     isRunning = false;
                     break;
+                }
+            }
+            else if (evt.type == ConfigureNotify) {
+                if (evt.xconfigure.width != windowWidth || evt.xconfigure.height != windowHeight) {
+                    windowWidth = evt.xconfigure.width;
+                    windowHeight = evt.xconfigure.height;
+                    glViewport(0, 0, windowWidth, windowHeight);
                 }
             }
             else if (evt.type == KeymapNotify) {
@@ -160,6 +172,8 @@ void Application::Run() {
         
         glXSwapBuffers(dpy, wnd);
     }
+
+    Cleanup();
 }
 
 bool Application::IsButtonDown(Mouse button) {
