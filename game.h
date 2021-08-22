@@ -3,6 +3,12 @@
 
 #include "window.h"
 
+typedef struct {
+    GameWindow *window;
+} Game;
+
+static Game *g_gameEngine;
+
 bool Game_Start(int w, int h);
 void Game_Init();
 void Game_Update(float deltaTime);

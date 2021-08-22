@@ -1,15 +1,17 @@
 #include "game.h"
 
-static GameWindow *g_mainWindow;
-
 bool Game_Start(int w, int h) {
-    g_mainWindow = GameWindow_Create(1280, 720);
-    if (g_mainWindow == NULL) {
-        return 1;
+    g_gameEngine = (Game *) malloc(sizeof(Game));
+
+    g_gameEngine->window = GameWindow_Create(1280, 720);
+    if (g_gameEngine->window == NULL) {
+        return false;
     }
 
-    GameWindow_Run(g_mainWindow, Game_Init, Game_Update, Game_Draw);
-    GameWindow_Destroy(g_mainWindow);
+    GameWindow_Run(g_gameEngine->window, Game_Init, Game_Update, Game_Draw);
+    GameWindow_Destroy(g_gameEngine->window);
+
+    free(g_gameEngine);
 }
 
 void Game_Init() {
@@ -42,46 +44,46 @@ bool IsButtonDown(uint8_t button) {
     if (button < 0 || button > 2) 
         return false; 
 
-    return g_mainWindow->mouseState & (1 << button);
+    return g_gameEngine->window->mouseState & (1 << button);
 }
 
 bool IsButtonPressed(uint8_t button) {
     if (button < 0 || button > 2) 
         return false; 
 
-    return (g_mainWindow->mouseState & (1 << button)) && !(g_mainWindow->mouseState & (1 << (button + 3)));
+    return (g_gameEngine->window->mouseState & (1 << button)) && !(g_gameEngine->window->mouseState & (1 << (button + 3)));
 }
 
 bool IsButtonUp(uint8_t button) {
     if (button < 0 || button > 2)
         return false;
     
-    return !(g_mainWindow->mouseState & (1 << button));
+    return !(g_gameEngine->window->mouseState & (1 << button));
 }
 
 bool IsButtonReleased(uint8_t button) {
     if (button < 0 || button > 2) 
         return false; 
 
-    return !(g_mainWindow->mouseState & (1 << button)) && (g_mainWindow->mouseState & (1 << (button + 3)));
+    return !(g_gameEngine->window->mouseState & (1 << button)) && (g_gameEngine->window->mouseState & (1 << (button + 3)));
 }
 
 bool IsKeyDown(Keys key) {
-    KeyCode kcode = XKeysymToKeycode(g_mainWindow->dpy, key);
-    return g_mainWindow->keyState[kcode / 8] & (1 << (kcode % 8));
+    KeyCode kcode = XKeysymToKeycode(g_gameEngine->window->dpy, key);
+    return g_gameEngine->window->keyState[kcode / 8] & (1 << (kcode % 8));
 }
 
 bool IsKeyPressed(Keys key) {
-    KeyCode kcode = XKeysymToKeycode(g_mainWindow->dpy, key);
-    return (g_mainWindow->keyState[kcode / 8] & (1 << (kcode % 8))) && !(g_mainWindow->lastKeyState[kcode / 8] & (1 << (kcode % 8)));
+    KeyCode kcode = XKeysymToKeycode(g_gameEngine->window->dpy, key);
+    return (g_gameEngine->window->keyState[kcode / 8] & (1 << (kcode % 8))) && !(g_gameEngine->window->lastKeyState[kcode / 8] & (1 << (kcode % 8)));
 }
 
 bool IsKeyUp(Keys key) {
-    KeyCode kcode = XKeysymToKeycode(g_mainWindow->dpy, key);
-    return !(g_mainWindow->keyState[kcode / 8] & (1 << (kcode % 8)));
+    KeyCode kcode = XKeysymToKeycode(g_gameEngine->window->dpy, key);
+    return !(g_gameEngine->window->keyState[kcode / 8] & (1 << (kcode % 8)));
 }
 
 bool IsKeyReleased(Keys key) {
-    KeyCode kcode = XKeysymToKeycode(g_mainWindow->dpy, key);
-    return !(g_mainWindow->keyState[kcode / 8] & (1 << (kcode % 8))) && (g_mainWindow->lastKeyState[kcode / 8] & (1 << (kcode % 8)));
+    KeyCode kcode = XKeysymToKeycode(g_gameEngine->window->dpy, key);
+    return !(g_gameEngine->window->keyState[kcode / 8] & (1 << (kcode % 8))) && (g_gameEngine->window->lastKeyState[kcode / 8] & (1 << (kcode % 8)));
 }
