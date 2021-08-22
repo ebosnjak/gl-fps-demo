@@ -67,6 +67,10 @@ GameWindow* GameWindow_Create(int w, int h) {
 
     ret->isRunning = false;
 
+    LoadGLFuncs();
+
+    printf("Success: Loaded GL functions\n");
+
     return ret;
 }
 

@@ -15,7 +15,7 @@ bool Game_Start(int w, int h) {
 }
 
 void Game_Init() {
-
+    
 }
 
 void Game_Update(float deltaTime) {

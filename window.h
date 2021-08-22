@@ -5,9 +5,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <GL/glx.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+
+#include "glfuncs.h"
 
 typedef GLXContext (*glXCreateContextAttribsARBProc) 
     (Display *, GLXFBConfig, GLXContext, bool, const int *);
