@@ -140,7 +140,9 @@ public:
     uint8_t keyState[32], lastKeyState[32];
 
     Application(int w, int h);
+
     ~Application();
+    
     void Run();
 
     virtual void Init() = 0;

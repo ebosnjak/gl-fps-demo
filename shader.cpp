@@ -31,10 +31,17 @@ Shader::Shader(unsigned int _type, std::string _path) {
     }
 }
 
-void Shader::Delete() {
+Shader::~Shader() {
     glDeleteShader(ID);
 }
 
+Shader& Shader::operator=(Shader&& sh) {
+    ID = sh.ID;
+    type = sh.type;
+    source = sh.source;
+    sh.ID = 0;
+    return (*this);
+}
 
 
 ShaderProgram::ShaderProgram() {
@@ -48,9 +55,6 @@ ShaderProgram::ShaderProgram(std::string _vsPath, std::string _fsPath) {
     AttachShader(vs);
     AttachShader(fs);
     Link();
-
-    vs.Delete();
-    fs.Delete();
 }
 
 ShaderProgram::ShaderProgram(const Shader& vs, const Shader& fs) {
@@ -58,6 +62,17 @@ ShaderProgram::ShaderProgram(const Shader& vs, const Shader& fs) {
     AttachShader(vs);
     AttachShader(fs);
     Link();
+}
+
+ShaderProgram::~ShaderProgram() {
+    if (ID != 0) glUseProgram(0);
+    glDeleteProgram(ID);
+}
+
+ShaderProgram& ShaderProgram::operator=(ShaderProgram&& prog) {
+    ID = prog.ID;
+    prog.ID = 0;
+    return (*this);
 }
 
 void ShaderProgram::Use() {
@@ -83,8 +98,4 @@ bool ShaderProgram::Link() {
 
 void ShaderProgram::AttachShader(const Shader& sh) {
     glAttachShader(ID, sh.ID);
-}
-
-void ShaderProgram::Delete() {
-    glDeleteProgram(ID);
 }

@@ -60,7 +60,6 @@ void Game::Draw() {
 }
 
 void Game::Cleanup() {
-    prog.Delete();
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
 }
