@@ -3,8 +3,7 @@
 
 #include "application.h"
 #include "shader.h"
-
-#include "dependencies/lodepng.h"
+#include "texture2d.h"
 
 #include <iostream>
 #include <vector>
@@ -13,6 +12,7 @@ class Game : public Application {
 public:
     unsigned int vao, vbo;
     ShaderProgram prog;
+    Texture2D tex;
 
     Game(int w, int h);
 
