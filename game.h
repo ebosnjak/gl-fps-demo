@@ -4,10 +4,15 @@
 #include "application.h"
 #include "shader.h"
 
+#include "dependencies/lodepng.h"
+
+#include <iostream>
+#include <vector>
+
 class Game : public Application {
 public:
-    unsigned int shaderProgram;
     unsigned int vao, vbo;
+    ShaderProgram prog;
 
     Game(int w, int h);
 

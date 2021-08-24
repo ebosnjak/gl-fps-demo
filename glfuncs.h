@@ -1,9 +1,13 @@
 #ifndef GLFUNCS_H
 #define GLFUNCS_H
 
+#define CheckGLError() CheckGLError_(__FILE__, __LINE__);
+
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <GL/glx.h>
+
+#include <iostream>
 
 extern PFNGLGENBUFFERSPROC					glGenBuffers;
 extern PFNGLDELETEBUFFERSPROC				glDeleteBuffers;
@@ -59,5 +63,6 @@ extern PFNGLVERTEXATTRIBDIVISORPROC			glVertexAttribDivisor;
 extern PFNGLDRAWARRAYSINSTANCEDPROC			glDrawArraysInstanced;
 
 void LoadGLProcs();
+GLenum CheckGLError_(const char* file, int line);
 
 #endif
