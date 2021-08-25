@@ -337,7 +337,7 @@ struct Matrix_generic {
 
 	static Matrix_generic CreatePerspective(T fov, T aspect, T zNear, T zFar) {
 		T convert = (T)(3.14159265359 / 180.0);
-		T y = 1.0f / tan(convert * fov / 2.0f);
+		T y = 1.0 / tan(convert * fov / 2.0);
 		T x = y / aspect;
 		T nf = zNear - zFar;
 		
@@ -346,6 +346,7 @@ struct Matrix_generic {
 		m.SetColumn(1, Vector4_generic< T >(0, y, 0, 0));	  
 		m.SetColumn(2, Vector4_generic< T >(0, 0, (zFar + zNear) / nf, 2 * zFar * zNear / nf));	 
 		m.SetColumn(3, Vector4_generic< T >(0, 0, -1, 0));
+
 		return m;
 	}
 

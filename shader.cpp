@@ -48,7 +48,7 @@ ShaderProgram::ShaderProgram() {
     ID = glCreateProgram();
 }
 
-ShaderProgram::ShaderProgram(std::string _vsPath, std::string _fsPath) {
+ShaderProgram::ShaderProgram(const std::string& _vsPath, const std::string& _fsPath) {
     ID = glCreateProgram();
     Shader vs(GL_VERTEX_SHADER, _vsPath);
     Shader fs(GL_FRAGMENT_SHADER, _fsPath);
@@ -98,4 +98,9 @@ bool ShaderProgram::Link() {
 
 void ShaderProgram::AttachShader(const Shader& sh) {
     glAttachShader(ID, sh.ID);
+}
+
+void ShaderProgram::SetMat4(const std::string& name, const Matrix& mat) {
+    Use();
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat.M[0][0]);
 }

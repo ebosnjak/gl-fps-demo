@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "glfuncs.h"
+#include "mathhelper.h"
 
 class Shader {
 public:
@@ -28,7 +29,7 @@ public:
 
     ShaderProgram();
     ShaderProgram(const ShaderProgram& prog) = delete;
-    ShaderProgram(std::string _vsPath, std::string _fsPath); 
+    ShaderProgram(const std::string& _vsPath, const std::string& _fsPath); 
     ShaderProgram(const Shader& _vs, const Shader& _fs);     
     
     ~ShaderProgram();
@@ -39,6 +40,8 @@ public:
     void Use();
     void AttachShader(const Shader& sh);    // if attaching to linked program, relink is required to apply this!
     bool Link();
+
+    void SetMat4(const std::string& name, const Matrix& mat);
 };
 
 #endif

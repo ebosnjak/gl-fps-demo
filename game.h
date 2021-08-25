@@ -4,6 +4,7 @@
 #include "application.h"
 #include "shader.h"
 #include "texture2d.h"
+#include "mathhelper.h"
 
 #include <iostream>
 #include <vector>
@@ -13,6 +14,8 @@ public:
     unsigned int vao, vbo;
     ShaderProgram prog;
     Texture2D tex;
+
+    float angle;
 
     Game(int w, int h);
 
