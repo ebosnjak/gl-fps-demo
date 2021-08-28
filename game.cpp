@@ -80,8 +80,11 @@ void Game::Init() {
 
     tex = Texture2D("assets/planks.png");
 
+    cameraPos = Vector3(0.0f, 0.0f, 4.0f);
+    cameraDirection = Vector3(0.0f, 0.0f, -1.0f);
+
     Matrix model;
-    Matrix view = Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 4.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+    Matrix view = Matrix::CreateLookAt(cameraPos, cameraPos + cameraDirection, Vector3(0.0f, 1.0f, 0.0f));
     Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 0.1f, 10.0f);
 
     prog.SetMat4("model", model);
@@ -92,6 +95,15 @@ void Game::Init() {
 }
 
 void Game::Update(float deltaTime) {
+    if (IsKeyDown(Keys::W)) {
+        cameraPos += cameraDirection * 2.0f * deltaTime;
+    }
+    if (IsKeyDown(Keys::S)) {
+        cameraPos -= cameraDirection * 2.0f * deltaTime;
+    }
+
+    prog.SetMat4("view", Matrix::CreateLookAt(cameraPos, cameraDirection, Vector3(0.0f, 1.0f, 0.0f)));
+
     angle += 30.0f * deltaTime;
     if (angle > 360.0f) {
         angle -= 360.0f;

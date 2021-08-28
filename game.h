@@ -17,6 +17,8 @@ public:
 
     float angle;
 
+    Vector3 cameraPos, cameraDirection;
+
     Game(int w, int h);
 
     void Init();

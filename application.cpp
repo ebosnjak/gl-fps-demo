@@ -1,6 +1,13 @@
 #include "application.h"
 
 Application::Application(int w, int h) {
+    for (int i = 0; i < 32; i++) {
+        keyState[i] = 0;
+        lastKeyState[i] = 0;
+    }
+
+    mouseState = 0;
+
     windowWidth = w;
     windowHeight = h;
 
@@ -199,7 +206,7 @@ bool Application::IsButtonReleased(Mouse button) {
 bool Application::IsKeyDown(Keys key) {
     unsigned int id = static_cast< unsigned int >(key);
     KeyCode kcode = XKeysymToKeycode(dpy, id);
-    return keyState[kcode / 8] & (1 << (kcode % 8));
+    return (keyState[kcode / 8] & (1 << (kcode % 8)));
 }
 
 bool Application::IsKeyPressed(Keys key) {
