@@ -109,7 +109,7 @@ struct Vector3_generic {
 	static Vector3_generic Cross(const Vector3_generic& a, const Vector3_generic& b) {
 		return Vector3_generic(
 			a.Y * b.Z - a.Z * b.Y,
-			a.X * b.Z - a.Z * b.X,
+			a.Z * b.X - a.X * b.Z,
 			a.X * b.Y - a.Y * b.X
 			);
 	}
@@ -260,14 +260,14 @@ struct Matrix_generic {
 		SetRow(3, Vector4_generic< T >((T)0, (T)0, (T)0, (T)1));
 	}
 
-	void SetColumn(int i, Vector4_generic< T > v) {
+	void SetColumn(int i, const Vector4_generic< T >& v) {
 		M[0][i] = v.X;
 		M[1][i] = v.Y;
 		M[2][i] = v.Z;
 		M[3][i] = v.W;
 	}
 
-	void SetRow(int i, Vector4_generic< T > v) {
+	void SetRow(int i, const Vector4_generic< T >& v) {
 		M[i][0] = v.X;
 		M[i][1] = v.Y;
 		M[i][2] = v.Z;
@@ -341,13 +341,13 @@ struct Matrix_generic {
 		T x = y / aspect;
 		T nf = zNear - zFar;
 		
-		Matrix_generic m;
-		m.SetColumn(0, Vector4_generic< T >(x, 0, 0, 0));	  
-		m.SetColumn(1, Vector4_generic< T >(0, y, 0, 0));	  
-		m.SetColumn(2, Vector4_generic< T >(0, 0, (zFar + zNear) / nf, 2 * zFar * zNear / nf));	 
-		m.SetColumn(3, Vector4_generic< T >(0, 0, -1, 0));
+		Matrix_generic ret;
+		ret.SetRow(0, Vector4_generic< T >(x, 0, 0, 0));	  
+		ret.SetRow(1, Vector4_generic< T >(0, y, 0, 0));	  
+		ret.SetRow(2, Vector4_generic< T >(0, 0, (zFar + zNear) / nf, 2 * zFar * zNear / nf));	 
+		ret.SetRow(3, Vector4_generic< T >(0, 0, -1, 0));
 
-		return m;
+		return ret;
 	}
 
 	static Matrix_generic CreateFromAxisAngle(Vector3_generic< T > axis, T angle) {
@@ -357,14 +357,14 @@ struct Matrix_generic {
 		T rx = axis.X;
 		T ry = axis.Y;
 		T rz = axis.Z;
-		T s = sinf(angle);
-		T c = cosf(angle);
+		T s = sin(angle);
+		T c = cos(angle);
 
 		Matrix_generic ret;
 		ret.SetColumn(0, Vector4_generic< T >(c + rx * rx * (1 - c), ry * rx * (1 - c) + rz * s, rz * rx * (1 - c) - ry * s, 0));
 		ret.SetColumn(1, Vector4_generic< T >(rx * ry * (1 - c) - rz * s, c + ry * ry * (1 - c), rz * ry * (1 - c) + rx * s, 0));
 		ret.SetColumn(2, Vector4_generic< T >(rx * rz * (1 - c) + ry * s, ry * rz * (1 - c) - rx * s, c + rz * rz * (1 - c), 0));
-		ret.SetColumn(3, Vector4_generic< T >(0.0f, 0.0f, 0.0f, 1.0f));
+		ret.SetColumn(3, Vector4_generic< T >(0, 0, 0, 1));
 
 		return ret;
 	}
@@ -372,17 +372,15 @@ struct Matrix_generic {
 	static Matrix_generic CreateLookAt(Vector3_generic< T > pos, Vector3_generic< T > target, Vector3_generic< T > up) {
 		Vector3_generic< T > direction = (pos - target).Normalize();
 		Vector3_generic< T > right = Vector3::Cross(up, direction).Normalize();
-		up = up.Normalize();
+		Vector3_generic< T > u = Vector3::Cross(direction, right).Normalize();
 
-		Matrix_generic m1;
-		m1.SetColumn(0, Vector4_generic< T >(right.X, right.Y, right.Z, Vector3_generic< T >::Dot(right, -pos)));
-		m1.SetColumn(1, Vector4_generic< T >(up.X, up.Y, up.Z, Vector3_generic< T >::Dot(up, -pos)));
-		m1.SetColumn(2, Vector4_generic< T >(direction.X, direction.Y, direction.Z, Vector3_generic< T >::Dot(direction, -pos)));
+		Matrix_generic ret;
+		ret.SetRow(0, Vector4_generic< T >(right.X, right.Y, right.Z, Vector3_generic< T >::Dot(right, -pos)));
+		ret.SetRow(1, Vector4_generic< T >(up.X, up.Y, up.Z, Vector3_generic< T >::Dot(up, -pos)));
+		ret.SetRow(2, Vector4_generic< T >(direction.X, direction.Y, direction.Z, Vector3_generic< T >::Dot(direction,  -pos)));
+		ret.SetRow(3, Vector4_generic< T >(0, 0, 0, 1));
 
-		Matrix_generic m2;
-		m2.SetColumn(3, Vector4_generic< T >(0, 0, 0, 1));
-
-		return m1 * m2;
+		return ret;
 	}
 };
 
