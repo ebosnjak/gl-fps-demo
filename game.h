@@ -9,6 +9,8 @@
 #include <iostream>
 #include <vector>
 
+#include <iomanip>
+
 class Game : public Application {
 public:
     unsigned int vao, vbo;
@@ -17,7 +19,8 @@ public:
 
     float angle;
 
-    Vector3 cameraPos, cameraDirection;
+    Vector3 cameraPos, cameraDirection, cameraUp, cameraRight;
+    float cameraYaw, cameraPitch;
 
     Game(int w, int h);
 
