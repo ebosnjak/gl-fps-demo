@@ -15,12 +15,12 @@ public:
     unsigned int width, height;
 
     Texture2D();
-    Texture2D(const Texture2D& tex) = delete;
+    Texture2D(const Texture2D& tex);
     Texture2D(std::string _path);
     
     ~Texture2D();
 
-    Texture2D& operator=(const Texture2D& tex) = delete;
+    Texture2D& operator=(const Texture2D& tex);
     Texture2D& operator=(Texture2D&& tex);
 
     void Bind();

@@ -4,7 +4,20 @@ unsigned int Texture2D::currentlyBoundID = 0;
 
 Texture2D::Texture2D() {
     glGenTextures(1, &ID);
+    Bind();
     SetDefaultParams();
+}
+
+Texture2D::Texture2D(const Texture2D& tex) {
+    pixelData = tex.pixelData;
+    width = tex.width;
+    height = tex.height;
+
+    // ID must not be copied so it doesn't break if tex is destroyed and glDeleteTextures is called
+    glGenTextures(1, &ID);
+    Bind();
+    SetDefaultParams(); // for now all textures use the same parameters
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
 }
 
 Texture2D::Texture2D(std::string _path) {
@@ -22,6 +35,19 @@ Texture2D::Texture2D(std::string _path) {
 
 Texture2D::~Texture2D() {
     glDeleteTextures(1, &ID);
+}
+
+Texture2D& Texture2D::operator=(const Texture2D& tex) {
+    width = tex.width;
+    height = tex.height;
+    pixelData = tex.pixelData;
+
+    glGenTextures(1, &ID);
+    Bind();
+    SetDefaultParams();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
+
+    return (*this);
 }
 
 Texture2D& Texture2D::operator=(Texture2D&& tex) {
