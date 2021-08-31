@@ -7,8 +7,10 @@
 
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+#include <X11/extensions/Xfixes.h>
 
 #include "glfuncs.h"
+#include "mathhelper.h"
 
 typedef GLXContext (*glXCreateContextAttribsARBProc) 
     (Display*, GLXFBConfig, GLXContext, bool, const int*);
@@ -124,6 +126,9 @@ enum class Keys {
 };
 
 class Application {
+private:
+    bool isCursorLocked;
+
 public:
     std::chrono::high_resolution_clock clock;    
 
@@ -136,7 +141,7 @@ public:
     int windowWidth, windowHeight;
 
     uint8_t mouseState;     // bits represent: scrollDown|scrollUp|lastRMB|lastMMB|lastLMB|RMB|MMB|LMB
-    int mouseX, mouseY, mouseGlobalX, mouseGlobalY;
+    int mouseX, mouseY, lastMouseX, lastMouseY;
     uint8_t keyState[32], lastKeyState[32];
 
     Application(int w, int h);
@@ -159,6 +164,11 @@ public:
     bool IsButtonUp(Mouse button);
     bool IsButtonPressed(Mouse button);
     bool IsButtonReleased(Mouse button);
+
+    Vector2 GetMousePos();
+    Vector2 GetMouseDelta();
+
+    void SetCursorLocked(bool locked);
 };
 
 #endif

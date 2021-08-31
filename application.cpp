@@ -11,6 +11,8 @@ Application::Application(int w, int h) {
     windowWidth = w;
     windowHeight = h;
 
+    isCursorLocked = false;
+
     dpy = XOpenDisplay(NULL);
     wnd = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 
                                     100, 100,   // (x, y)
@@ -95,6 +97,13 @@ void Application::Run() {
 
     auto lastT = clock.now();
 
+    lastMouseX = windowWidth / 2;
+    lastMouseY = windowHeight / 2;
+    mouseX = lastMouseX;
+    mouseY = lastMouseY;
+
+    XWarpPointer(dpy, 0, wnd, 0, 0, 0, 0, lastMouseX, lastMouseY);
+
     isRunning = true;
     while (isRunning) {
         for (int i = 0; i < 32; i++) {
@@ -104,6 +113,16 @@ void Application::Run() {
         mouseState &= ~(3 << 6);                // clear scroll up/down flags (not used for now)
         mouseState &= ~(7 << 3);                // clear last mouse state;
         mouseState |= ((mouseState & 7) << 3);  // set last mouse state to current mouse state
+
+        if (isCursorLocked) {
+            lastMouseX = windowWidth / 2;
+            lastMouseY = windowHeight / 2;
+            XWarpPointer(dpy, 0, wnd, 0, 0, 0, 0, lastMouseX, lastMouseY);
+        }
+        else {
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
 
         XEvent evt;
         while (XPending(dpy)) {
@@ -225,4 +244,22 @@ bool Application::IsKeyReleased(Keys key) {
     unsigned int id = static_cast< unsigned int >(key);
     KeyCode kcode = XKeysymToKeycode(dpy, id);
     return !(keyState[kcode / 8] & (1 << (kcode % 8))) && (lastKeyState[kcode / 8] & (1 << (kcode % 8)));
+}
+
+Vector2 Application::GetMousePos() {
+    return Vector2(mouseX, mouseY);
+}
+
+Vector2 Application::GetMouseDelta() {
+    return Vector2(mouseX - lastMouseX, mouseY - lastMouseY);
+}
+
+void Application::SetCursorLocked(bool locked) {
+    isCursorLocked = locked;
+    if (isCursorLocked) {
+        XFixesHideCursor(dpy, DefaultRootWindow(dpy));
+    }
+    else {
+        XFixesShowCursor(dpy, DefaultRootWindow(dpy));
+    }
 }
