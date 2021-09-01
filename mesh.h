@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <unordered_map>
 
 struct VertexData {
     Vector3 position;
@@ -18,16 +19,31 @@ struct VertexData {
     Vector2 texCoords;
 };
 
+struct OffsetData {
+    int offset;
+    int count;
+    std::string materialName;
+};
+
+struct Material {
+    Vector3 ambient;
+    Vector3 diffuse;
+    Vector3 specular;
+};
+
 class Mesh {
 private:
     unsigned int vbo, ebo, vao;
-    void LoadFromOBJ(std::string path);
+    void LoadOBJ(std::string path);
+    void LoadMTL(std::string path);
     void InitBuffers();
 
 public:
+    std::vector< OffsetData > offsets;
     std::vector< VertexData > vertices;
     std::vector< unsigned int > textures;
     std::vector< unsigned int > indices;
+    std::unordered_map< std::string, Material > materials;
 
     Mesh();
     Mesh(const Mesh& m);
@@ -39,7 +55,7 @@ public:
     Mesh& operator=(const Mesh& m);
     Mesh& operator=(Mesh&& m);
 
-    void Draw();
+    void Draw(ShaderProgram& prog);
 };
 
 #endif

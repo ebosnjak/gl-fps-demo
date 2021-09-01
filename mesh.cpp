@@ -5,9 +5,11 @@ Mesh::Mesh() {
 }
 
 Mesh::Mesh(const Mesh& m) {
+    offsets = m.offsets;
     textures = m.textures;
     vertices = m.vertices;
     indices = m.indices;
+    materials = m.materials;
 
     InitBuffers();
 }
@@ -31,7 +33,7 @@ Mesh::Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsign
 }
 
 Mesh::Mesh(const std::string& _path) {
-    LoadFromOBJ(_path);
+    LoadOBJ(_path);
     InitBuffers();
 }
 
@@ -46,9 +48,11 @@ Mesh& Mesh::operator=(const Mesh& m) {
 
     vao = 0; vbo = 0;
 
+    offsets = m.offsets;
     textures = m.textures;
     vertices = m.vertices;
     indices = m.indices;
+    materials = m.materials;
 
     InitBuffers();
 
@@ -58,9 +62,12 @@ Mesh& Mesh::operator=(const Mesh& m) {
 Mesh& Mesh::operator=(Mesh&& m) {
     vbo = m.vbo;
     vao = m.vao;
+
+    offsets = m.offsets;
     textures = m.textures;
     vertices = m.vertices;
     indices = m.indices;
+    materials = m.materials;
 
     m.vbo = 0; m.vao = 0;
 
@@ -69,22 +76,37 @@ Mesh& Mesh::operator=(Mesh&& m) {
     return (*this);
 }
 
-void Mesh::Draw() {
+void Mesh::Draw(ShaderProgram& prog) {
+    prog.Use();
     glBindVertexArray(vao);
     
-    for (int i = 0; i < textures.size(); i++) {
+    /*for (int i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         Texture2D::Bind(textures[i]);
+    }*/
+    
+    for (int i = 0; i < offsets.size(); i++) {
+        prog.SetVec3("material.ambient", materials[offsets[i].materialName].ambient);
+        prog.SetVec3("material.diffuse", materials[offsets[i].materialName].diffuse);
+        prog.SetVec3("material.specular", materials[offsets[i].materialName].specular);
+        prog.SetFloat("material.shininess", 8.0f);
+
+        glDrawElements(GL_TRIANGLES, offsets[i].count, GL_UNSIGNED_INT, (void*)(offsets[i].offset * sizeof(unsigned int)));
     }
 
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
-void Mesh::LoadFromOBJ(std::string path) {
+void Mesh::LoadOBJ(std::string path) {
     std::vector< Vector3 > objVertices, objNormals;
     std::vector< Vector2 > objUVs;
+
     int idx = 0;
+    int pieceStart = 0, pieceVCount = 0;
+    std::string currentMat = "-";
+    
+    bool warn = false;
+    
     std::ifstream objFile(path);
     if (objFile.is_open()) {
         std::string line;
@@ -122,25 +144,86 @@ void Mesh::LoadFromOBJ(std::string path) {
                     ++count;
                 }
 
+                if (count > 3) {
+                    warn = true;
+                }
+
                 // for now, indexing is used only on individual faces
                 for (int i = 1; i < count - 1; i++) {
                     indices.push_back(idx);
                     indices.push_back(idx + i);
                     indices.push_back(idx + i + 1);
+                    pieceVCount += 3;
                 }
 
                 idx += count;
             }
             else if (first == "mtllib") {
+                std::string mtlPath, folder = path;
+                while (folder.back() != '/') {
+                    folder.pop_back();
+                }
 
+                ss >> mtlPath;
+                LoadMTL(folder + mtlPath);
             }
             else if (first == "usemtl") {
-                
+                if (pieceVCount > 0) {
+                    offsets.push_back({ pieceStart, pieceVCount, currentMat });
+                }
+
+                ss >> currentMat;
+                pieceStart = indices.size();
+                pieceVCount = 0;
             }
         }
     }
     else {
         std::cout << "Error: Cannot open file \"" << path << "\" for reading." << std::endl;
+        return;
+    }
+
+    if (pieceVCount > 0) {
+        offsets.push_back({ pieceStart, pieceVCount, currentMat });
+    }
+
+    if (warn) {
+        std::cout << "Warning: \"" << path << "\" doesn't have triangulated faces, this may cause issues" << std::endl;
+    }
+}
+
+void Mesh::LoadMTL(std::string path) {
+    std::ifstream mtlFile(path);
+    if (mtlFile.is_open()) {
+        std::string line;
+        std::string currentName;
+        while (std::getline(mtlFile, line)) {
+            std::stringstream ss(line);
+            std::string first;
+            ss >> first;
+
+            if (first == "newmtl") {
+                ss >> currentName;
+            }
+            else if (first == "Ka") {
+                float r, g, b;
+                ss >> r >> g >> b;
+                materials[currentName].ambient = Vector3(r, g, b);
+            }
+            else if (first == "Kd") {
+                float r, g, b;
+                ss >> r >> g >> b;
+                materials[currentName].diffuse = Vector3(r, g, b);
+            }
+            else if (first == "Ks") {
+                float r, g, b;
+                ss >> r >> g >> b;
+                materials[currentName].specular = Vector3(r, g, b);
+            }
+        }
+    }
+    else {
+        std::cout << "Error: Cannot open mtllib \"" << path << "\"" << std::endl;
         return;
     }
 }
