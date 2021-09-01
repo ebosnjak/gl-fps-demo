@@ -1,12 +1,11 @@
 #include "mesh.h"
 
 Mesh::Mesh() {
-    texture = nullptr;
-    vao = 0; vbo = 0;
+
 }
 
 Mesh::Mesh(const Mesh& m) {
-    texture = m.texture;
+    textures = m.textures;
     vertices = m.vertices;
 
     glGenVertexArrays(1, &vao);
@@ -28,9 +27,19 @@ Mesh::Mesh(const Mesh& m) {
     glBindVertexArray(0);
 }
 
-Mesh::Mesh(const std::vector< VertexData >& _vertices, Texture2D* _tex) {
-    texture = _tex;
+Mesh::Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsigned int >& _textures) {
+    textures = _textures;
     vertices = _vertices;
+
+    int removed = 0;
+    while (textures.size() > GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) {
+        textures.pop_back();
+        ++removed;
+    }
+
+    if (removed > 0) {
+        std::cout << "Warning: Texture array too large, last " << removed << " elements were erased." << std::endl;
+    }
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -62,7 +71,7 @@ Mesh& Mesh::operator=(const Mesh& m) {
 
     vao = 0; vbo = 0;
 
-    texture = m.texture;
+    textures = m.textures;
     vertices = m.vertices;
 
     glGenVertexArrays(1, &vao);
@@ -87,12 +96,12 @@ Mesh& Mesh::operator=(const Mesh& m) {
 }
 
 Mesh& Mesh::operator=(Mesh&& m) {
-    texture = m.texture;
+    textures = m.textures;
     vbo = m.vbo;
     vao = m.vao;
     vertices = m.vertices;
 
-    m.vbo = 0; m.vao = 0; m.texture = nullptr;
+    m.vbo = 0; m.vao = 0; m.textures.clear();
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -117,7 +126,12 @@ Mesh& Mesh::operator=(Mesh&& m) {
 
 void Mesh::Draw() {
     glBindVertexArray(vao);
-    if (texture != nullptr) texture->Bind();
+    
+    for (int i = 0; i < textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        Texture2D::Bind(textures[i]);
+    }
+
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
     glBindVertexArray(0);
 }

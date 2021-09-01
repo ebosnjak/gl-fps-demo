@@ -20,11 +20,11 @@ private:
 
 public:
     std::vector< VertexData > vertices;
-    Texture2D* texture;
+    std::vector< unsigned int > textures;
 
     Mesh();
     Mesh(const Mesh& m);
-    Mesh(const std::vector< VertexData >& _vertices, Texture2D* _tex);
+    Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsigned int >& _textures);
 
     ~Mesh();
 
