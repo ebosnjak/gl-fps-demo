@@ -107,3 +107,23 @@ void ShaderProgram::SetMat4(const std::string& name, const Matrix& mat) {
     // but Matrix class in mathhelper.h uses row major order
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_TRUE, &mat.M[0][0]);
 }
+
+void ShaderProgram::SetFloat(const std::string& name, float val) {
+    Use();
+    glUniform1f(glGetUniformLocation(ID, name.c_str()), val);
+}
+
+void ShaderProgram::SetVec2(const std::string& name, const Vector2& vec) {
+    Use();
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), vec.X, vec.Y);
+}
+
+void ShaderProgram::SetVec3(const std::string& name, const Vector3& vec) {
+    Use();
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), vec.X, vec.Y, vec.Z);
+}
+
+void ShaderProgram::SetVec4(const std::string& name, const Vector4& vec) {
+    Use();
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), vec.X, vec.Y, vec.Z, vec.W);
+}

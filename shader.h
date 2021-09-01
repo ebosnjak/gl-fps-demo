@@ -42,6 +42,10 @@ public:
     bool Link();
 
     void SetMat4(const std::string& name, const Matrix& mat);
+    void SetFloat(const std::string& name, float val);
+    void SetVec2(const std::string& name, const Vector2& vec);
+    void SetVec3(const std::string& name, const Vector3& vec);
+    void SetVec4(const std::string& name, const Vector4& vec);
 };
 
 #endif
