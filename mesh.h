@@ -9,6 +9,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <sstream>
+#include <cstring>
 
 struct VertexData {
     Vector3 position;
@@ -19,6 +21,8 @@ struct VertexData {
 class Mesh {
 private:
     unsigned int vbo, ebo, vao;
+    void LoadFromOBJ(std::string path);
+    void InitBuffers();
 
 public:
     std::vector< VertexData > vertices;
