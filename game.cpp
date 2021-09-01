@@ -13,34 +13,13 @@ void Game::Init() {
 
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
 
-    glUseProgram(0);
-
-    /*std::vector< VertexData > vertices;
-    vertices = { 
-        { Vector3(-0.5f, -0.5f, 0.0f), Vector3(), Vector2(0.0f, 0.0f) }, 
-        { Vector3(0.5f, -0.5f, 0.0f), Vector3(), Vector2(1.0f, 0.0f) },
-        { Vector3(0.5f, 0.5f, 0.0f), Vector3(), Vector2(1.0f, 1.0f) },
-        { Vector3(-0.5f, 0.5f, 0.0f), Vector3(), Vector2(0.0f, 1.0f) } 
-    };
-
-    testMesh = Mesh(vertices, { Content::Instance().GetTextureID("planks") }, { 0, 1, 2, 2, 3, 0 });*/
-
-    testMesh = Mesh("assets/shotgun.obj");
-    prog.SetVec3("material.ambient", Vector3(0.24725f, 0.1995f, 0.0745f));
-    prog.SetVec3("material.diffuse", Vector3(0.75164f, 0.60648f, 0.22648f));
-    prog.SetVec3("material.specular", Vector3(0.62828f, 0.55580f, 0.36607f));
-    prog.SetFloat("material.shininess", 51.2f);
+    testMesh = Mesh("assets/shotgun_tri.obj");
 
     cameraPos = Vector3(0.0f, 0.0f, 4.0f);
     cameraYaw = 3.1415f / 2.0f;
     cameraPitch = 0.0f;
 
-    Matrix model;
-    Matrix view;
     Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 1.0f, 15.0f);
-
-    prog.SetMat4("model", model);
-    prog.SetMat4("view", view);
     prog.SetMat4("proj", proj);
 }
 
@@ -92,8 +71,7 @@ void Game::Draw() {
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    prog.Use();
-    testMesh.Draw();
+    testMesh.Draw(prog);
 }
 
 void Game::Cleanup() {
