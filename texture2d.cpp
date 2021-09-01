@@ -61,6 +61,13 @@ Texture2D& Texture2D::operator=(Texture2D&& tex) {
     return (*this);
 }
 
+void Texture2D::Bind(unsigned int id) {
+    if (id != currentlyBoundID) {
+        glBindTexture(GL_TEXTURE_2D, id);
+        currentlyBoundID = id;
+    }
+}
+
 void Texture2D::Bind() {
     if (ID != currentlyBoundID) {
         glBindTexture(GL_TEXTURE_2D, ID);

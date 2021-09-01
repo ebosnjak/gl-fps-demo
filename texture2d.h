@@ -23,6 +23,7 @@ public:
     Texture2D& operator=(const Texture2D& tex);
     Texture2D& operator=(Texture2D&& tex);
 
+    static void Bind(unsigned int id);
     void Bind();
     void SetParameter(unsigned int param, int value); // if necessary add functions for other types like glTexParameterfv etc.
     void SetDefaultParams();
