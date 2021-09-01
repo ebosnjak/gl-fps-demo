@@ -1,11 +1,12 @@
 #include "mesh.h"
 
 Mesh::Mesh() {
-
+    texture = nullptr;
+    vao = 0; vbo = 0;
 }
 
 Mesh::Mesh(const Mesh& m) {
-    textureID = m.textureID;
+    texture = m.texture;
     vertices = m.vertices;
 
     glGenVertexArrays(1, &vao);
@@ -27,8 +28,8 @@ Mesh::Mesh(const Mesh& m) {
     glBindVertexArray(0);
 }
 
-Mesh::Mesh(std::vector< VertexData > _vertices, unsigned int _texID) {
-    textureID = _texID;
+Mesh::Mesh(const std::vector< VertexData >& _vertices, Texture2D* _tex) {
+    texture = _tex;
     vertices = _vertices;
 
     glGenVertexArrays(1, &vao);
@@ -61,7 +62,7 @@ Mesh& Mesh::operator=(const Mesh& m) {
 
     vao = 0; vbo = 0;
 
-    textureID = m.textureID;
+    texture = m.texture;
     vertices = m.vertices;
 
     glGenVertexArrays(1, &vao);
@@ -86,12 +87,12 @@ Mesh& Mesh::operator=(const Mesh& m) {
 }
 
 Mesh& Mesh::operator=(Mesh&& m) {
-    textureID = m.textureID;
+    texture = m.texture;
     vbo = m.vbo;
     vao = m.vao;
     vertices = m.vertices;
 
-    m.vbo = 0; m.vao = 0; m.textureID = 0;
+    m.vbo = 0; m.vao = 0; m.texture = nullptr;
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -116,7 +117,7 @@ Mesh& Mesh::operator=(Mesh&& m) {
 
 void Mesh::Draw() {
     glBindVertexArray(vao);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    if (texture != nullptr) texture->Bind();
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
     glBindVertexArray(0);
 }
