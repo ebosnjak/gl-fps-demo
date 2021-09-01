@@ -5,6 +5,8 @@
 #include "shader.h"
 #include "texture2d.h"
 #include "mathhelper.h"
+#include "mesh.h"
+#include "content.h"
 
 #include <iostream>
 #include <vector>
@@ -13,11 +15,8 @@
 
 class Game : public Application {
 public:
-    unsigned int vao, vbo;
+    Mesh testMesh;
     ShaderProgram prog;
-    Texture2D tex;
-
-    float angle;
 
     Vector3 cameraPos, cameraDirection, cameraUp, cameraRight;
     float cameraYaw, cameraPitch;

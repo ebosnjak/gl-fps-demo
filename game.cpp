@@ -1,86 +1,35 @@
 #include "game.h"
 
 Game::Game(int w, int h) : Application(w, h) {
-
+    
 }
 
 void Game::Init() {
+    Content::Instance().Load();
+
     SetCursorLocked(true);
 
     glEnable(GL_DEPTH_TEST);
 
-    float square[] = {
-        // xy               uv
-        -0.5f, -0.5f,       0.0f, 0.0f,
-        0.5f, -0.5f,        1.0f, 0.0f,
-        0.5f, 0.5f,         1.0f, 1.0f,
-
-        0.5f, 0.5f,         1.0f, 1.0f,
-        -0.5f, 0.5f,        0.0f, 1.0f,
-        -0.5f, -0.5f,       0.0f, 0.0f
-    };
-
-    float cube[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
-
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
-    prog.Use();
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
+    glUseProgram(0);
 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    /*std::vector< VertexData > vertices;
+    vertices = { 
+        { Vector3(-0.5f, -0.5f, 0.0f), Vector3(), Vector2(0.0f, 0.0f) }, 
+        { Vector3(0.5f, -0.5f, 0.0f), Vector3(), Vector2(1.0f, 0.0f) },
+        { Vector3(0.5f, 0.5f, 0.0f), Vector3(), Vector2(1.0f, 1.0f) },
+        { Vector3(-0.5f, 0.5f, 0.0f), Vector3(), Vector2(0.0f, 1.0f) } 
+    };
 
-    tex = Texture2D("assets/planks.png");
+    testMesh = Mesh(vertices, { Content::Instance().GetTextureID("planks") }, { 0, 1, 2, 2, 3, 0 });*/
+
+    testMesh = Mesh("assets/shotgun.obj");
+    prog.SetVec3("material.ambient", Vector3(0.24725f, 0.1995f, 0.0745f));
+    prog.SetVec3("material.diffuse", Vector3(0.75164f, 0.60648f, 0.22648f));
+    prog.SetVec3("material.specular", Vector3(0.62828f, 0.55580f, 0.36607f));
+    prog.SetFloat("material.shininess", 51.2f);
 
     cameraPos = Vector3(0.0f, 0.0f, 4.0f);
     cameraYaw = 3.1415f / 2.0f;
@@ -93,8 +42,6 @@ void Game::Init() {
     prog.SetMat4("model", model);
     prog.SetMat4("view", view);
     prog.SetMat4("proj", proj);
-
-    angle = 0.0f;
 }
 
 void Game::Update(float deltaTime) {
@@ -132,24 +79,23 @@ void Game::Update(float deltaTime) {
         std::cout << std::endl;
     }
 
+    Matrix model = Matrix::CreateTranslation(cameraPos + 2.0f * cameraDirection + cameraRight - 0.5f * cameraUp);
+    model = model * Matrix::CreateFromAxisAngle(Vector3(cameraRight), cameraPitch * 180.0f / 3.1415f);
+    model = model * Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), cameraYaw * 180.0f / 3.1415f + 90.0f);
+    model = model * Matrix::CreateScale(Vector3(20.0f, 20.0f, 20.0f));
+    prog.SetMat4("model", model);
     prog.SetMat4("view", Matrix::CreateLookAt(cameraPos, cameraPos + cameraDirection, cameraUp));
-
-    angle += 30.0f * deltaTime;
-    if (angle > 360.0f) {
-        angle -= 360.0f;
-    }
-
-    prog.SetMat4("model", Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), angle));
-}
+    prog.SetVec3("cameraPos", cameraPos);
+}   
 
 void Game::Draw() {
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    prog.Use();
+    testMesh.Draw();
 }
 
 void Game::Cleanup() {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
+    
 }
