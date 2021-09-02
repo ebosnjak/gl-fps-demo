@@ -14,11 +14,6 @@ Application::Application(int w, int h) {
     isCursorLocked = false;
 
     dpy = XOpenDisplay(NULL);
-    wnd = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 
-                                    100, 100,   // (x, y)
-                                    windowWidth, windowHeight,  // width, height
-                                    0, 0,       // border width and height
-                                    0);         // background
     
     int attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,
@@ -27,6 +22,7 @@ Application::Application(int w, int h) {
         GLX_RED_SIZE, 8,
         GLX_GREEN_SIZE, 8,
         GLX_BLUE_SIZE, 8,
+        GLX_ALPHA_SIZE, 8,
         GLX_DEPTH_SIZE, 24,
         GLX_STENCIL_SIZE, 8,
         None
@@ -34,9 +30,35 @@ Application::Application(int w, int h) {
 
     int nFbConfigs = 0;
     GLXFBConfig *fbConfigs = glXChooseFBConfig(dpy, DefaultScreen(dpy), attribs, &nFbConfigs);
-
     if (fbConfigs == nullptr) {
         std::cout << "Error: glXChooseFBConfig failed" << std::endl;
+        return;
+    }
+
+    int bestConfig = 0, prefSamp = 16;
+    for (int i = 0; i < nFbConfigs; i++) {
+        int samp;
+        glXGetFBConfigAttrib(dpy, fbConfigs[i], GLX_SAMPLES, &samp);
+        if (samp == prefSamp) {
+            bestConfig = i;
+        }
+    }
+
+    XVisualInfo* vinfo = glXGetVisualFromFBConfig(dpy, fbConfigs[bestConfig]);
+    XSetWindowAttributes swa;
+    Colormap cmap;
+    cmap = XCreateColormap(dpy, RootWindow(dpy, vinfo->screen), vinfo->visual, AllocNone);
+    swa.colormap = cmap;
+    swa.background_pixmap = None;
+    
+    wnd = XCreateWindow(dpy, RootWindow(dpy, vinfo->screen), 
+                        200, 200,
+                        windowWidth, windowHeight,
+                        0,
+                        vinfo->depth, InputOutput, vinfo->visual,
+                        CWBorderPixel | CWColormap, &swa);
+    if (!wnd) {
+        std::cout << "Error: XCreateWindow failed" << std::endl;
         return;
     }
 
@@ -54,7 +76,7 @@ Application::Application(int w, int h) {
         None
     };
 
-    ctx = glXCreateContextAttribsARB(dpy, fbConfigs[0], NULL, true, contextAttribs);
+    ctx = glXCreateContextAttribsARB(dpy, fbConfigs[bestConfig], NULL, true, contextAttribs);
     
     if (ctx == nullptr) {
         std::cout << "Error: glXCreateContextAttribsARB failed" << std::endl;
