@@ -100,17 +100,22 @@ void ShaderProgram::AttachShader(const Shader& sh) {
     glAttachShader(ID, sh.ID);
 }
 
+void ShaderProgram::SetInt(const std::string& name, int val) {
+    Use();
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), val);
+}
+
+void ShaderProgram::SetFloat(const std::string& name, float val) {
+    Use();
+    glUniform1f(glGetUniformLocation(ID, name.c_str()), val);
+}
+
 void ShaderProgram::SetMat4(const std::string& name, const Matrix& mat) {
     Use();
 
     // transpose is true because glUniformMatrix assumes column major order,
     // but Matrix class in mathhelper.h uses row major order
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_TRUE, &mat.M[0][0]);
-}
-
-void ShaderProgram::SetFloat(const std::string& name, float val) {
-    Use();
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), val);
 }
 
 void ShaderProgram::SetVec2(const std::string& name, const Vector2& vec) {
