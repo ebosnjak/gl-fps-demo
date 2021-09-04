@@ -15,7 +15,9 @@
 
 class Game : public Application {
 public:
+    Matrix modelMat;
     Mesh testMesh;
+    Mesh backpackMesh;
     ShaderProgram prog;
 
     Vector3 cameraPos, cameraDirection, cameraUp, cameraRight;

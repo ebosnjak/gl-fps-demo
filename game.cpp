@@ -1,7 +1,7 @@
 #include "game.h"
 
 Game::Game(int w, int h) : Application(w, h) {
-    
+
 }
 
 void Game::Init() {
@@ -10,10 +10,12 @@ void Game::Init() {
     SetCursorLocked(true);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
 
     testMesh = Mesh("assets/shotgun_tri.obj");
+    backpackMesh = Mesh("assets/backpack/backpack.obj");    // loading takes a while
 
     cameraPos = Vector3(0.0f, 0.0f, 4.0f);
     cameraYaw = 3.1415f / 2.0f;
@@ -58,20 +60,24 @@ void Game::Update(float deltaTime) {
         std::cout << std::endl;
     }
 
-    Matrix model = Matrix::CreateTranslation(cameraPos + 2.0f * cameraDirection + cameraRight - 0.5f * cameraUp);
-    model = model * Matrix::CreateFromAxisAngle(Vector3(cameraRight), cameraPitch * 180.0f / 3.1415f);
-    model = model * Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), cameraYaw * 180.0f / 3.1415f + 90.0f);
-    model = model * Matrix::CreateScale(Vector3(20.0f, 20.0f, 20.0f));
-    prog.SetMat4("model", model);
-    prog.SetMat4("view", Matrix::CreateLookAt(cameraPos, cameraPos + cameraDirection, cameraUp));
-    prog.SetVec3("cameraPos", cameraPos);
+    modelMat = Matrix::CreateTranslation(cameraPos + 2.0f * cameraDirection + cameraRight - 0.5f * cameraUp);
+    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(cameraRight), cameraPitch * 180.0f / 3.1415f);
+    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), cameraYaw * 180.0f / 3.1415f + 90.0f);
+    modelMat = modelMat * Matrix::CreateScale(Vector3(20.0f, 20.0f, 20.0f));
 }   
 
 void Game::Draw() {
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    prog.SetMat4("view", Matrix::CreateLookAt(cameraPos, cameraPos + cameraDirection, cameraUp));
+    prog.SetVec3("cameraPos", cameraPos);
+
+    prog.SetMat4("model", modelMat);
     testMesh.Draw(prog);
+
+    prog.SetMat4("model", Matrix());
+    backpackMesh.Draw(prog);
 }
 
 void Game::Cleanup() {
