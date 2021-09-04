@@ -3,6 +3,46 @@
 
 #include <cmath>
 
+namespace Math {
+	const double PI = 3.1415f;
+
+	inline float ToRadians(float degrees) {
+		return degrees / 180.0f * PI;
+	}
+
+	inline float ToDegrees(float radians) {
+		return radians / PI * 180.0f;
+	}
+
+	inline float Sin(float x) {
+		return sinf(ToRadians(x));
+	}
+
+	inline float Cos(float x) {
+		return cosf(ToRadians(x));
+	}
+
+	inline float Tan(float x) {
+		return tanf(ToRadians(x));
+	}
+
+	inline float Asin(float x) {
+		return ToDegrees(asinf(x));
+	}
+
+	inline float Acos(float x) {
+		return ToDegrees(acosf(x));
+	}
+
+	inline float Atan(float x) {
+		return ToDegrees(atanf(x));
+	}
+
+	inline float Atan2(float x, float y) {
+		return ToDegrees(atan2f(x, y));
+	}
+}
+
 template< typename T >
 struct Vector2_generic {
 	T X, Y;
@@ -76,6 +116,10 @@ struct Vector2_generic {
 
 	friend bool operator==(const Vector2_generic& a, const Vector2_generic& b) {
 		return a.X == b.X && a.Y == b.Y;
+	}
+
+	friend bool operator!=(const Vector2_generic& a, const Vector2_generic& b) {
+		return a.X != b.X || a.Y != b.Y;
 	}
 };
 
@@ -169,6 +213,10 @@ struct Vector3_generic {
 	friend bool operator==(const Vector3_generic& a, const Vector3_generic& b) {
 		return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
 	}
+
+	friend bool operator!=(const Vector3_generic& a, const Vector3_generic& b) {
+		return a.X != b.X || a.Y != b.Y || a.Z != b.Z; 
+	}
 };
 
 typedef Vector3_generic< int > Vector3i;
@@ -243,6 +291,10 @@ struct Vector4_generic {
 
 	friend bool operator==(const Vector4_generic& a, const Vector4_generic& b) {
 		return a.X == b.X && a.Y == b.Y && a.Z == b.Z && a.W == b.W;
+	}
+
+	friend bool operator!=(const Vector4_generic& a, const Vector4_generic& b) {
+		return a.X != b.X || a.Y != b.Y || a.Z != b.Z || a.W != b.W; 
 	}
 };
 
@@ -393,12 +445,9 @@ struct Rectangle_generic {
     Vector2_generic< T > position;
     Vector2_generic< T > size;
 
-    Rectangle_generic() {
-        position = Vector2_generic< T >();
-        size = Vector2_generic< T >();
-    }
+    Rectangle_generic() { }
 
-    Rectangle_generic(Vector2_generic< T > _position, Vector2_generic< T > _size) {
+    Rectangle_generic(const Vector2_generic< T >& _position, const Vector2_generic< T >& _size) {
         position = _position;
         size = _size;
     }
@@ -410,9 +459,9 @@ struct Rectangle_generic {
 
 	static bool CheckAABB(const Rectangle_generic& lhs, const Rectangle_generic& rhs) {
 		return (lhs.position.X + lhs.size.X > rhs.position.X &&
-			lhs.position.X < rhs.position.X + rhs.size.X &&
-			lhs.position.Y + lhs.size.Y > rhs.position.Y &&
-			lhs.position.Y < rhs.position.Y + rhs.size.Y);
+				lhs.position.X < rhs.position.X + rhs.size.X &&
+				lhs.position.Y + lhs.size.Y > rhs.position.Y &&
+				lhs.position.Y < rhs.position.Y + rhs.size.Y);
 	}
 
 	static Vector2_generic< T > AABBDistance(const Rectangle_generic& lhs, const Rectangle_generic& rhs) {
@@ -438,5 +487,63 @@ struct Rectangle_generic {
 typedef Rectangle_generic< int > Rectanglei;
 typedef Rectangle_generic< float > Rectangle;
 typedef Rectangle_generic< double > Rectangled;
+
+struct Box {
+	Vector3 position;
+	Vector3 size;
+
+	Box() { }
+
+	Box(const Vector3& _position, const Vector3& _size) {
+		position = _position;
+		size = _size;
+	}
+
+	Box(float X, float Y, float Z, float width, float height, float length) {
+		position = Vector3(X, Y, Z);
+		size = Vector3(width, height, length);
+	}
+
+	static bool IsInside(const Vector3& point, const Box& aabb) {
+		return (point.X >= aabb.position.X && point.X <= aabb.position.X + aabb.size.X &&
+				point.Y >= aabb.position.Y && point.Y <= aabb.position.Y + aabb.size.Y &&
+				point.Z >= aabb.position.Z && point.Z <= aabb.position.Z + aabb.size.Z);
+	}
+
+	static bool CheckAABB(const Box& lhs, const Box& rhs) {
+		return (lhs.position.X < rhs.position.X + rhs.size.X &&
+				lhs.position.X + lhs.size.X > rhs.position.X &&
+				lhs.position.Y < rhs.position.Y + rhs.size.Y &&
+				lhs.position.Y + lhs.size.Y > rhs.position.Y &&
+				lhs.position.Z < rhs.position.Z + rhs.size.Z &&
+				lhs.position.Z + lhs.size.Z > rhs.position.Z);
+	}
+
+	static Vector3 AABBDistance(const Box& lhs, const Box& rhs) {
+		float dx, dy, dz;
+		if (lhs.position.X < rhs.position.X) {
+			dx = rhs.position.X - (lhs.position.X + lhs.size.X);
+		}
+		else {
+			dx = lhs.position.X - (rhs.position.X + rhs.size.X);
+		}
+
+		if (lhs.position.Y < rhs.position.Y) {
+			dy = rhs.position.Y - (lhs.position.Y + lhs.size.Y);
+		}
+		else {
+			dy = lhs.position.Y - (rhs.position.Y + rhs.size.Y);
+		}
+
+		if (lhs.position.Z < rhs.position.Z) {
+			dz = rhs.position.Z - (lhs.position.Z + lhs.size.Z);
+		}
+		else {
+			dz = lhs.position.Z - (rhs.position.Z + rhs.size.Z);
+		}
+
+		return Vector3(-dx, -dy, -dz);
+	}
+};
 
 #endif
