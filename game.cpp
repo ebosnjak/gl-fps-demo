@@ -16,68 +16,77 @@ void Game::Init() {
 
     testMesh = Mesh("assets/shotgun_tri.obj");
     backpackMesh = Mesh("assets/backpack/backpack.obj");    // loading takes a while
+    floorMesh = Mesh("assets/floor.obj");
 
-    cameraPos = Vector3(0.0f, 0.0f, 4.0f);
-    cameraYaw = 3.1415f / 2.0f;
-    cameraPitch = 0.0f;
+    //cubeMesh = Mesh("assets/cube.obj");
+    //cubeMesh.ignoreMaterials = true;
+    //cubeMesh.color = Vector3(1.0f, 1.0f, 1.0f);
 
-    Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 1.0f, 15.0f);
+    camera = Camera(Vector3(0.0f, 2.0f, 4.0f), 90.0f, 0.0f);
+
+    Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 1.0f, 100.0f);
     prog.SetMat4("proj", proj);
+
+    prog.SetVec4("light.vector", Vector4(-1.0f, -5.0f, -2.0f, 0.0f));
+    //prog.SetVec4("light.vector", Vector4(3.0f, 2.0f, 4.0f, 1.0f));
+    prog.SetVec3("light.ambient", Vector3(0.1f, 0.1f, 0.1f));
+    prog.SetVec3("light.diffuse", Vector3(0.7f, 0.7f, 0.7f));
+    prog.SetVec3("light.specular", Vector3(0.8f, 0.8f, 0.8f));
 }
 
 void Game::Update(float deltaTime) {
     Vector2 mouseDelta = GetMouseDelta();
-    cameraYaw -= (mouseDelta.X / 2000.0f) * 2.0f * 3.14159f;
-    cameraPitch -= (mouseDelta.Y / 2000.0f) * 2.0f * 3.14159f;
-
-    if (cameraPitch > 3.12f / 2.0f) cameraPitch = 3.12f / 2.0f;
-    if (cameraPitch < -3.12f / 2.0f) cameraPitch = -3.12f / 2.0f; 
-
-    cameraDirection = Vector3(cosf(cameraYaw) * cosf(cameraPitch), sinf(cameraPitch), -sinf(cameraYaw) * cosf(cameraPitch)).Normalize();
-    cameraRight = Vector3::Cross(cameraDirection, Vector3(0.0f, 1.0f, 0.0f)).Normalize();
-    cameraUp = Vector3::Cross(cameraRight, cameraDirection).Normalize();
+    camera.yaw -= (mouseDelta.X / 2000.0f) * 360.0f;
+    camera.pitch -= (mouseDelta.Y / 2000.0f) * 360.0f;
 
     if (IsKeyDown(Keys::W)) {
-        cameraPos += cameraDirection * 2.0f * deltaTime;
+        camera.position += camera.Direction() * 2.0f * deltaTime;
     }
     if (IsKeyDown(Keys::S)) {
-        cameraPos -= cameraDirection * 2.0f * deltaTime;
+        camera.position -= camera.Direction() * 2.0f * deltaTime;
     }
     if (IsKeyDown(Keys::A)) {
-        cameraPos -= cameraRight * 2.0f * deltaTime;
+        camera.position -= camera.Right() * 2.0f * deltaTime;
     }
     if (IsKeyDown(Keys::D)) {
-        cameraPos += cameraRight * 2.0f * deltaTime;
+        camera.position += camera.Right() * 2.0f * deltaTime;
     }
 
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
-        std::cout << "cameraYaw: " << cameraYaw << std::endl;
-        std::cout << "cameraPos: " << cameraPos.X << ", " << cameraPos.Y << ", " << cameraPos.Z << std::endl;
-        std::cout << "cameraDirection: " << cameraDirection.X << ", " << cameraDirection.Y << ", " << cameraDirection.Z << std::endl;
-        std::cout << "cameraUp: " << cameraUp.X << ", " << cameraUp.Y << ", " << cameraUp.Z << std::endl;
-        std::cout << "cameraRight: " << cameraRight.X << ", " << cameraRight.Y << ", " << cameraRight.Z << std::endl;
+        std::cout << "cameraYaw: " << camera.yaw << std::endl;
+        std::cout << "cameraPos: " << camera.position.X << ", " << camera.position.Y << ", " << camera.position.Z << std::endl;
+        std::cout << "cameraDirection: " << camera.Direction().X << ", " << camera.Direction().Y << ", " << camera.Direction().Z << std::endl;
+        std::cout << "cameraUp: " << camera.Up().X << ", " << camera.Up().Y << ", " << camera.Up().Z << std::endl;
+        std::cout << "cameraRight: " << camera.Right().X << ", " << camera.Right().Y << ", " << camera.Right().Z << std::endl;
         std::cout << std::endl;
     }
 
-    modelMat = Matrix::CreateTranslation(cameraPos + 2.0f * cameraDirection + cameraRight - 0.5f * cameraUp);
-    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(cameraRight), cameraPitch * 180.0f / 3.1415f);
-    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), cameraYaw * 180.0f / 3.1415f + 90.0f);
+    // order: translate * rotate * scale * (vector)
+    modelMat = Matrix::CreateTranslation(camera.position + 2.0f * camera.Direction() + camera.Right() - 0.5f * camera.Up());
+    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(camera.Right()), camera.pitch);
+    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), camera.yaw + 90.0f);
     modelMat = modelMat * Matrix::CreateScale(Vector3(20.0f, 20.0f, 20.0f));
 }   
 
 void Game::Draw() {
-    glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+    glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    prog.SetMat4("view", Matrix::CreateLookAt(cameraPos, cameraPos + cameraDirection, cameraUp));
-    prog.SetVec3("cameraPos", cameraPos);
+    prog.SetMat4("view", camera.LookAt());
+    prog.SetVec3("cameraPos", camera.position);
 
     prog.SetMat4("model", modelMat);
     testMesh.Draw(prog);
 
-    prog.SetMat4("model", Matrix());
+    prog.SetMat4("model", Matrix::CreateTranslation(Vector3(0.0f, 3.0f, 0.0f)));
     backpackMesh.Draw(prog);
+
+    prog.SetMat4("model", Matrix());
+    floorMesh.Draw(prog);
+
+    //prog.SetMat4("model", Matrix::CreateTranslation(Vector3(3.0f, 2.0f, 4.0f)) * Matrix::CreateScale(Vector3(0.5f, 0.5f, 0.5f)));
+    //cubeMesh.Draw(prog);
 }
 
 void Game::Cleanup() {

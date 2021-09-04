@@ -7,6 +7,7 @@
 #include "mathhelper.h"
 #include "mesh.h"
 #include "content.h"
+#include "camera.h"
 
 #include <iostream>
 #include <vector>
@@ -18,10 +19,11 @@ public:
     Matrix modelMat;
     Mesh testMesh;
     Mesh backpackMesh;
-    ShaderProgram prog;
+    Mesh floorMesh;
+    Mesh cubeMesh;
 
-    Vector3 cameraPos, cameraDirection, cameraUp, cameraRight;
-    float cameraYaw, cameraPitch;
+    Camera camera;
+    ShaderProgram prog;
 
     Game(int w, int h);
 
