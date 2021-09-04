@@ -89,7 +89,26 @@ void Mesh::Draw(ShaderProgram& prog) {
         prog.SetVec3("material.ambient", materials[offsets[i].materialName].ambient);
         prog.SetVec3("material.diffuse", materials[offsets[i].materialName].diffuse);
         prog.SetVec3("material.specular", materials[offsets[i].materialName].specular);
-        prog.SetFloat("material.shininess", 8.0f);
+        prog.SetFloat("material.shininess", materials[offsets[i].materialName].shininess);
+        prog.SetInt("material.useDiffMap", materials[offsets[i].materialName].useDiffMap);
+        prog.SetInt("material.useBumpMap", materials[offsets[i].materialName].useBumpMap);
+        prog.SetInt("material.useSpecMap", materials[offsets[i].materialName].useSpecMap);
+        
+        if (materials[offsets[i].materialName].useDiffMap) {
+            prog.SetInt("material.diffuseMap", 0);
+            glActiveTexture(GL_TEXTURE0);
+            materials[offsets[i].materialName].diffuseMap.Bind();
+        }
+        if (materials[offsets[i].materialName].useBumpMap) {
+            prog.SetInt("material.bumpMap", 1);
+            glActiveTexture(GL_TEXTURE1);
+            materials[offsets[i].materialName].bumpMap.Bind();
+        }
+        if (materials[offsets[i].materialName].useSpecMap) {
+            prog.SetInt("material.specularMap", 2);
+            glActiveTexture(GL_TEXTURE2);
+            materials[offsets[i].materialName].specularMap.Bind();
+        }
 
         glDrawElements(GL_TRIANGLES, offsets[i].count, GL_UNSIGNED_INT, (void*)(offsets[i].offset * sizeof(unsigned int)));
     }
@@ -204,6 +223,13 @@ void Mesh::LoadMTL(std::string path) {
 
             if (first == "newmtl") {
                 ss >> currentName;
+                materials[currentName].ambient = Vector3(0.1f, 0.1f, 0.1f);
+                materials[currentName].diffuse = Vector3(0.3f, 0.3f, 0.3f);
+                materials[currentName].specular = Vector3(0.8f, 0.8f, 0.8f);
+                materials[currentName].shininess = 16.0f;
+                materials[currentName].useDiffMap = false;
+                materials[currentName].useBumpMap = false;
+                materials[currentName].useSpecMap = false;
             }
             else if (first == "Ka") {
                 float r, g, b;
@@ -219,6 +245,50 @@ void Mesh::LoadMTL(std::string path) {
                 float r, g, b;
                 ss >> r >> g >> b;
                 materials[currentName].specular = Vector3(r, g, b);
+            }
+            else if (first == "Ns") {
+                float coeff;
+                ss >> coeff;
+                materials[currentName].shininess = (coeff == 0.0f ? 1.0f : coeff);
+            }
+            else if (first == "Ke") {
+                // emission, not supported
+            }
+            else if (first == "d") {
+                // transparency, not supported
+            }
+            else if (first == "Ni") {
+                // refractive index, not supported
+            }
+            else if (first == "illum") {
+                // illumination model, not supported
+            }
+            else if (first == "map_Kd") {
+                std::string mapPath, folder = path;
+                ss >> mapPath;
+                materials[currentName].useDiffMap = true;
+                while (folder.back() != '/') {
+                    folder.pop_back();
+                }
+                materials[currentName].diffuseMap = Texture2D(folder + mapPath);
+            }
+            else if (first == "map_Bump") {
+                std::string mapPath, folder = path;
+                ss >> mapPath;
+                materials[currentName].useBumpMap = true;
+                while (folder.back() != '/') {
+                    folder.pop_back();
+                }
+                materials[currentName].bumpMap = Texture2D(folder + mapPath);
+            }
+            else if (first == "map_Ks") {
+                std::string mapPath, folder = path;
+                ss >> mapPath;
+                materials[currentName].useSpecMap = true;
+                while (folder.back() != '/') {
+                    folder.pop_back();
+                }
+                materials[currentName].specularMap = Texture2D(folder + mapPath);
             }
         }
     }

@@ -29,6 +29,9 @@ struct Material {
     Vector3 ambient;
     Vector3 diffuse;
     Vector3 specular;
+    float shininess;
+    bool useDiffMap, useBumpMap, useSpecMap;
+    Texture2D diffuseMap, bumpMap, specularMap;
 };
 
 class Mesh {
