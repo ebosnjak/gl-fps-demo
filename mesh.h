@@ -42,6 +42,9 @@ private:
     void InitBuffers();
 
 public:
+    bool ignoreMaterials;
+    Vector3 color;
+    
     std::vector< OffsetData > offsets;
     std::vector< VertexData > vertices;
     std::vector< unsigned int > textures;

@@ -16,23 +16,42 @@ struct Material {
     sampler2D diffuseMap, bumpMap, specularMap;
 };
 
+struct Light {
+    vec4 vector;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+uniform bool solidColor;
+uniform vec3 color;
 uniform Material material;
+
+uniform Light light;
+
 uniform vec3 cameraPos;
 
 void main() {
-    vec3 lightColor = vec3(1.0, 1.0, 1.0);
-    vec3 lightPos = vec3(3.0, 2.0, 4.0);
+    if (solidColor) {
+        fragColor = vec4(color, 1.0);
+        return;
+    }
+
+    vec3 lightDir = -normalize(light.vector.xyz);       // for directional lights, vector.xyz is their direction and w is 0.0
+    if (light.vector.w == 1.0) {            // for point lights, vector.xyz is their position and w is 1.0
+        lightDir = normalize(light.vector.xyz - fragPos);
+    }
 
     vec3 diff = vec3(1.0, 1.0, 1.0);
     if (material.useDiffMap) {
         diff = texture(material.diffuseMap, texCoord).xyz;
     }
 
-    vec3 ambient = 0.2 * lightColor * material.ambient * diff;
+    vec3 ambient = light.ambient * material.ambient * diff;
 
     vec3 norm = normalize(normal);
-    vec3 lightDir = normalize(lightPos - fragPos);
-    vec3 diffuse = 0.8 * lightColor * (max(0.0, dot(norm, lightDir)) * material.diffuse * diff);
+    vec3 diffuse = light.diffuse * (max(0.0, dot(norm, lightDir)) * material.diffuse * diff);
 
     // add specular
     vec3 ref = reflect(-lightDir, norm);
@@ -41,7 +60,7 @@ void main() {
     if (material.useSpecMap) {
         spec = texture(material.specularMap, texCoord).xyz;
     }
-    vec3 specular = 1.0 * lightColor * (specFactor * material.specular * spec);
+    vec3 specular = light.specular * (specFactor * material.specular * spec);
 
     vec3 result = ambient + diffuse + specular;
     fragColor = vec4(result, 1.0);

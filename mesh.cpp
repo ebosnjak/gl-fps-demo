@@ -5,6 +5,8 @@ Mesh::Mesh() {
 }
 
 Mesh::Mesh(const Mesh& m) {
+    ignoreMaterials = m.ignoreMaterials;
+    color = m.color;
     offsets = m.offsets;
     textures = m.textures;
     vertices = m.vertices;
@@ -15,6 +17,8 @@ Mesh::Mesh(const Mesh& m) {
 }
 
 Mesh::Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsigned int >& _textures, const std::vector< unsigned int >& _indices) {
+    ignoreMaterials = true;
+    color = Vector3(1.0f, 1.0f, 1.0f);
     textures = _textures;
     vertices = _vertices;
     indices = _indices;
@@ -33,6 +37,8 @@ Mesh::Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsign
 }
 
 Mesh::Mesh(const std::string& _path) {
+    ignoreMaterials = false;
+    color = Vector3(1.0f, 1.0f, 1.0f);
     LoadOBJ(_path);
     InitBuffers();
 }
@@ -48,6 +54,8 @@ Mesh& Mesh::operator=(const Mesh& m) {
 
     vao = 0; vbo = 0;
 
+    ignoreMaterials = m.ignoreMaterials;
+    color = m.color;
     offsets = m.offsets;
     textures = m.textures;
     vertices = m.vertices;
@@ -63,6 +71,8 @@ Mesh& Mesh::operator=(Mesh&& m) {
     vbo = m.vbo;
     vao = m.vao;
 
+    ignoreMaterials = m.ignoreMaterials;
+    color = m.color;
     offsets = m.offsets;
     textures = m.textures;
     vertices = m.vertices;
@@ -85,32 +95,41 @@ void Mesh::Draw(ShaderProgram& prog) {
         Texture2D::Bind(textures[i]);
     }*/
     
-    for (int i = 0; i < offsets.size(); i++) {
-        prog.SetVec3("material.ambient", materials[offsets[i].materialName].ambient);
-        prog.SetVec3("material.diffuse", materials[offsets[i].materialName].diffuse);
-        prog.SetVec3("material.specular", materials[offsets[i].materialName].specular);
-        prog.SetFloat("material.shininess", materials[offsets[i].materialName].shininess);
-        prog.SetInt("material.useDiffMap", materials[offsets[i].materialName].useDiffMap);
-        prog.SetInt("material.useBumpMap", materials[offsets[i].materialName].useBumpMap);
-        prog.SetInt("material.useSpecMap", materials[offsets[i].materialName].useSpecMap);
-        
-        if (materials[offsets[i].materialName].useDiffMap) {
-            prog.SetInt("material.diffuseMap", 0);
-            glActiveTexture(GL_TEXTURE0);
-            materials[offsets[i].materialName].diffuseMap.Bind();
-        }
-        if (materials[offsets[i].materialName].useBumpMap) {
-            prog.SetInt("material.bumpMap", 1);
-            glActiveTexture(GL_TEXTURE1);
-            materials[offsets[i].materialName].bumpMap.Bind();
-        }
-        if (materials[offsets[i].materialName].useSpecMap) {
-            prog.SetInt("material.specularMap", 2);
-            glActiveTexture(GL_TEXTURE2);
-            materials[offsets[i].materialName].specularMap.Bind();
-        }
+    if (!ignoreMaterials) {
+        prog.SetInt("solidColor", 0);
+        for (int i = 0; i < offsets.size(); i++) {
+            prog.SetVec3("material.ambient", materials[offsets[i].materialName].ambient);
+            prog.SetVec3("material.diffuse", materials[offsets[i].materialName].diffuse);
+            prog.SetVec3("material.specular", materials[offsets[i].materialName].specular);
+            prog.SetFloat("material.shininess", materials[offsets[i].materialName].shininess);
+            prog.SetInt("material.useDiffMap", materials[offsets[i].materialName].useDiffMap);
+            prog.SetInt("material.useBumpMap", materials[offsets[i].materialName].useBumpMap);
+            prog.SetInt("material.useSpecMap", materials[offsets[i].materialName].useSpecMap);
+            
+            if (materials[offsets[i].materialName].useDiffMap) {
+                prog.SetInt("material.diffuseMap", 0);
+                glActiveTexture(GL_TEXTURE0);
+                materials[offsets[i].materialName].diffuseMap.Bind();
+            }
+            if (materials[offsets[i].materialName].useBumpMap) {
+                prog.SetInt("material.bumpMap", 1);
+                glActiveTexture(GL_TEXTURE1);
+                materials[offsets[i].materialName].bumpMap.Bind();
+            }
+            if (materials[offsets[i].materialName].useSpecMap) {
+                prog.SetInt("material.specularMap", 2);
+                glActiveTexture(GL_TEXTURE2);
+                materials[offsets[i].materialName].specularMap.Bind();
+            }
 
-        glDrawElements(GL_TRIANGLES, offsets[i].count, GL_UNSIGNED_INT, (void*)(offsets[i].offset * sizeof(unsigned int)));
+            glDrawElements(GL_TRIANGLES, offsets[i].count, GL_UNSIGNED_INT, (void*)(offsets[i].offset * sizeof(unsigned int)));
+        }
+    }
+    else {
+        prog.SetInt("solidColor", 1);
+        prog.SetVec3("color", color);
+
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
     }
 
     glBindVertexArray(0);
@@ -167,7 +186,6 @@ void Mesh::LoadOBJ(std::string path) {
                     warn = true;
                 }
 
-                // for now, indexing is used only on individual faces
                 for (int i = 1; i < count - 1; i++) {
                     indices.push_back(idx);
                     indices.push_back(idx + i);
