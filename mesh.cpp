@@ -12,6 +12,7 @@ Mesh::Mesh(const Mesh& m) {
     vertices = m.vertices;
     indices = m.indices;
     materials = m.materials;
+    aabb = m.aabb;
 
     InitBuffers();
 }
@@ -22,6 +23,22 @@ Mesh::Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsign
     textures = _textures;
     vertices = _vertices;
     indices = _indices;
+
+    float left = vertices[0].position.X, bottom = vertices[0].position.Y, back = vertices[0].position.Z;
+    float right = left, top = bottom, front = back;
+
+    for (int i = 1; i < vertices.size(); i++) {
+        left = std::min(left, vertices[i].position.X);
+        bottom = std::min(bottom, vertices[i].position.Y);
+        back = std::min(back, vertices[i].position.Z);
+
+        right = std::max(right, vertices[i].position.X);
+        top = std::max(top, vertices[i].position.Y);
+        front = std::max(front, vertices[i].position.Z);
+    }
+
+    aabb.position = Vector3(left, bottom, back);
+    aabb.size = Vector3(right - left, top - bottom, front - back);
 
     int removed = 0;
     while (textures.size() > GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) {
@@ -61,6 +78,7 @@ Mesh& Mesh::operator=(const Mesh& m) {
     vertices = m.vertices;
     indices = m.indices;
     materials = m.materials;
+    aabb = m.aabb;
 
     InitBuffers();
 
@@ -78,6 +96,7 @@ Mesh& Mesh::operator=(Mesh&& m) {
     vertices = m.vertices;
     indices = m.indices;
     materials = m.materials;
+    aabb = m.aabb;
 
     m.vbo = 0; m.vao = 0;
 
@@ -144,6 +163,9 @@ void Mesh::LoadOBJ(std::string path) {
     std::string currentMat = "-";
     
     bool warn = false;
+
+    bool flag = true;
+    float left, right, bottom, top, back, front;
     
     std::ifstream objFile(path);
     if (objFile.is_open()) {
@@ -158,6 +180,22 @@ void Mesh::LoadOBJ(std::string path) {
                 ss >> x >> y >> z;
 
                 objVertices.push_back(Vector3(x, y, z));
+
+                if (flag) {
+                    flag = false;
+                    left = x; right = x;
+                    bottom = y; top = y;
+                    back = z; front = z;
+                }
+                else {
+                    left = std::min(left, x);
+                    bottom = std::min(bottom, y);
+                    back = std::min(back, z);
+
+                    right = std::max(right, x);
+                    top = std::max(top, y);
+                    front = std::max(front, z);
+                }
             }
             else if (first == "vn") {
                 float x, y, z;
@@ -227,6 +265,13 @@ void Mesh::LoadOBJ(std::string path) {
     if (warn) {
         std::cout << "Warning: \"" << path << "\" doesn't have triangulated faces, this may cause issues" << std::endl;
     }
+
+    aabb.position = Vector3(left, bottom, back);
+    aabb.size = Vector3(right - left, top - bottom, front - back);
+
+    std::cout << "Success: Loaded 3D model from " << path << std::endl;
+    std::cout << "pos " << left << ", " << bottom << ", " << back << std::endl;
+    std::cout << "size " << aabb.size.X << ", " << aabb.size.Y << ", " << aabb.size.Z << std::endl;
 }
 
 void Mesh::LoadMTL(std::string path) {

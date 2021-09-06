@@ -51,6 +51,8 @@ public:
     std::vector< unsigned int > indices;
     std::unordered_map< std::string, Material > materials;
 
+    Box aabb;
+
     Mesh();
     Mesh(const Mesh& m);
     Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsigned int >& _textures, const std::vector< unsigned int >& _indices);
