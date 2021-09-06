@@ -13,6 +13,7 @@
 class Content {
 private:
     std::unordered_map< std::string, Texture2D > textures;
+    std::unordered_map< std::string, Mesh > meshes;
 
     Content();
     Content(const Content& c) = delete;
@@ -27,6 +28,8 @@ public:
     
     Texture2D* GetTexture(const std::string& name);
     unsigned int GetTextureID(const std::string& name);
+
+    Mesh* GetMesh(const std::string& name);
 };
 
 #endif
