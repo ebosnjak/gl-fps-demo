@@ -14,13 +14,7 @@ void Game::Init() {
 
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
 
-    testMesh = Mesh("assets/shotgun_tri.obj");
-    backpackMesh = Mesh("assets/backpack/backpack.obj");    // loading takes a while
-    floorMesh = Mesh("assets/floor.obj");
-
-    //cubeMesh = Mesh("assets/cube.obj");
-    //cubeMesh.ignoreMaterials = true;
-    //cubeMesh.color = Vector3(1.0f, 1.0f, 1.0f);
+    test = Entity(Content::Instance().GetMesh("backpack"));
 
     camera = Camera(Vector3(0.0f, 2.0f, 4.0f), 90.0f, 0.0f);
 
@@ -28,7 +22,7 @@ void Game::Init() {
     prog.SetMat4("proj", proj);
 
     prog.SetVec4("light.vector", Vector4(-1.0f, -5.0f, -2.0f, 0.0f));
-    //prog.SetVec4("light.vector", Vector4(3.0f, 2.0f, 4.0f, 1.0f));
+    //prog.SetVec4("light.vector", Vector4(3.0f, 2.0f, 4.0f, 1.0f)); // for point light
     prog.SetVec3("light.ambient", Vector3(0.1f, 0.1f, 0.1f));
     prog.SetVec3("light.diffuse", Vector3(0.7f, 0.7f, 0.7f));
     prog.SetVec3("light.specular", Vector3(0.8f, 0.8f, 0.8f));
@@ -61,12 +55,6 @@ void Game::Update(float deltaTime) {
         std::cout << "cameraRight: " << camera.Right().X << ", " << camera.Right().Y << ", " << camera.Right().Z << std::endl;
         std::cout << std::endl;
     }
-
-    // order: translate * rotate * scale * (vector)
-    modelMat = Matrix::CreateTranslation(camera.position + 2.0f * camera.Direction() + camera.Right() - 0.5f * camera.Up());
-    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(camera.Right()), camera.pitch);
-    modelMat = modelMat * Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), camera.yaw + 90.0f);
-    modelMat = modelMat * Matrix::CreateScale(Vector3(20.0f, 20.0f, 20.0f));
 }   
 
 void Game::Draw() {
@@ -76,19 +64,18 @@ void Game::Draw() {
     prog.SetMat4("view", camera.LookAt());
     prog.SetVec3("cameraPos", camera.position);
 
-    prog.SetMat4("model", modelMat);
-    testMesh.Draw(prog);
+    test.Draw(prog);
 
-    prog.SetMat4("model", Matrix::CreateTranslation(Vector3(0.0f, 3.0f, 0.0f)));
-    backpackMesh.Draw(prog);
-
-    prog.SetMat4("model", Matrix());
-    floorMesh.Draw(prog);
-
-    //prog.SetMat4("model", Matrix::CreateTranslation(Vector3(3.0f, 2.0f, 4.0f)) * Matrix::CreateScale(Vector3(0.5f, 0.5f, 0.5f)));
-    //cubeMesh.Draw(prog);
+    DrawBox(prog, test.GetAABB());
 }
 
 void Game::Cleanup() {
     
+}
+
+void Game::DrawBox(ShaderProgram& p, const Box& b) {
+    p.SetMat4("model", Matrix::CreateTranslation(b.position + b.size * 0.5f) * Matrix::CreateScale(b.size));
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    Content::Instance().GetMesh("unitcube")->Draw(p);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

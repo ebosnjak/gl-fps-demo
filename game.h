@@ -8,6 +8,7 @@
 #include "mesh.h"
 #include "content.h"
 #include "camera.h"
+#include "entity.h"
 
 #include <iostream>
 #include <vector>
@@ -16,11 +17,7 @@
 
 class Game : public Application {
 public:
-    Matrix modelMat;
-    Mesh testMesh;
-    Mesh backpackMesh;
-    Mesh floorMesh;
-    Mesh cubeMesh;
+    Entity test;
 
     Camera camera;
     ShaderProgram prog;
@@ -31,6 +28,8 @@ public:
     void Update(float deltaTime);
     void Draw();
     void Cleanup();
+
+    static void DrawBox(ShaderProgram& p, const Box& b);
 };
 
 #endif
