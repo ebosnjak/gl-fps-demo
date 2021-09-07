@@ -4,9 +4,12 @@
 #include "glfuncs.h"
 #include "mesh.h"
 #include "mathhelper.h"
+#include "camera.h"
+
+class Game;
 
 class Entity {
-private:
+protected:
     Matrix modelMatrix;
     Vector3 position;
     Vector3 rotation;   // euler angles
@@ -19,9 +22,12 @@ private:
     void ComputeMatrix();
 
 public:
+    static Game* gameEngine;
+    
     Mesh* mesh;
 
     Vector3 linearVelocity;
+
     Box aabb;
     
     Entity();
@@ -42,6 +48,16 @@ public:
 
     float GetScale();
     void SetScale(float sc);
+};
+
+class Player : public Entity {
+public:
+    Camera camera;
+
+    Player(Vector3 _position = Vector3(), Vector3 _rotation = Vector3(), float _scale = 1.0f);
+
+    void Update(float deltaTime);
+    void Draw(ShaderProgram& prog);
 };
 
 #endif
