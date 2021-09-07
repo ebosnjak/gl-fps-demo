@@ -17,7 +17,11 @@
 
 class Game : public Application {
 public:
+    Player player;
+
     Entity test;
+
+    std::unordered_map< std::string, Entity > world;
 
     Camera camera;
     ShaderProgram prog;

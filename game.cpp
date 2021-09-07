@@ -5,6 +5,8 @@ Game::Game(int w, int h) : Application(w, h) {
 }
 
 void Game::Init() {
+    Entity::gameEngine = this;
+
     Content::Instance().Load();
 
     SetCursorLocked(true);
@@ -15,8 +17,20 @@ void Game::Init() {
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
 
     test = Entity(Content::Instance().GetMesh("backpack"));
+    test.SetPosition(Vector3(1.0f, 3.0f, -3.0f));
 
-    camera = Camera(Vector3(0.0f, 2.0f, 4.0f), 90.0f, 0.0f);
+    world["floor"] = Entity(Content::Instance().GetMesh("floor"));
+    world["floor"].SetPosition(Vector3(0.0f, -2.0f, 0.0f));
+
+    // TODO: 
+    // - tie player camera to an entity which obeys gravity and can't fall through the ground
+    // - also jumping
+    // - obstacles through which the player cannot move
+    // - gun viewmodel
+    // - actual shooting and hit detection
+
+    player = Player(Vector3(0.0f, 2.0f, 0.0f));
+    //camera = Camera(Vector3(0.0f, 2.0f, 4.0f), 90.0f, 0.0f);
 
     Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 1.0f, 100.0f);
     prog.SetMat4("proj", proj);
@@ -30,43 +44,55 @@ void Game::Init() {
 
 void Game::Update(float deltaTime) {
     Vector2 mouseDelta = GetMouseDelta();
-    camera.yaw -= (mouseDelta.X / 2000.0f) * 360.0f;
-    camera.pitch -= (mouseDelta.Y / 2000.0f) * 360.0f;
+    //camera.yaw -= (mouseDelta.X / 2000.0f) * 360.0f;
+    //camera.pitch -= (mouseDelta.Y / 2000.0f) * 360.0f;
+
+    player.Rotate(Vector3(-mouseDelta.Y / 2000.0f * 360.0f, -mouseDelta.X / 2000.0f * 360.0f, 0.0f));
 
     if (IsKeyDown(Keys::W)) {
-        camera.position += camera.Direction() * 2.0f * deltaTime;
+        //camera.position += camera.Direction() * 2.0f * deltaTime;
+        player.Move(player.camera.Direction() * 2.0f * deltaTime);
     }
     if (IsKeyDown(Keys::S)) {
-        camera.position -= camera.Direction() * 2.0f * deltaTime;
+        //camera.position -= camera.Direction() * 2.0f * deltaTime;
+        player.Move(-player.camera.Direction() * 2.0f * deltaTime);
     }
     if (IsKeyDown(Keys::A)) {
-        camera.position -= camera.Right() * 2.0f * deltaTime;
+        //camera.position -= camera.Right() * 2.0f * deltaTime;
+        player.Move(-player.camera.Right() * 2.0f * deltaTime);
     }
     if (IsKeyDown(Keys::D)) {
-        camera.position += camera.Right() * 2.0f * deltaTime;
+        //camera.position += camera.Right() * 2.0f * deltaTime;
+        player.Move(player.camera.Right() * 2.0f * deltaTime);
     }
 
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
-        std::cout << "cameraYaw: " << camera.yaw << std::endl;
-        std::cout << "cameraPos: " << camera.position.X << ", " << camera.position.Y << ", " << camera.position.Z << std::endl;
-        std::cout << "cameraDirection: " << camera.Direction().X << ", " << camera.Direction().Y << ", " << camera.Direction().Z << std::endl;
-        std::cout << "cameraUp: " << camera.Up().X << ", " << camera.Up().Y << ", " << camera.Up().Z << std::endl;
-        std::cout << "cameraRight: " << camera.Right().X << ", " << camera.Right().Y << ", " << camera.Right().Z << std::endl;
+        std::cout << "cameraYaw: " << player.camera.yaw << std::endl;
+        std::cout << "cameraPos: " << player.camera.position.X << ", " << player.camera.position.Y << ", " << player.camera.position.Z << std::endl;
+        std::cout << "cameraDirection: " << player.camera.Direction().X << ", " << player.camera.Direction().Y << ", " << player.camera.Direction().Z << std::endl;
+        std::cout << "cameraUp: " << player.camera.Up().X << ", " << player.camera.Up().Y << ", " << player.camera.Up().Z << std::endl;
+        std::cout << "cameraRight: " << player.camera.Right().X << ", " << player.camera.Right().Y << ", " << player.camera.Right().Z << std::endl;
         std::cout << std::endl;
     }
+
+    player.Update(deltaTime);
 }   
 
 void Game::Draw() {
     glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    prog.SetMat4("view", camera.LookAt());
-    prog.SetVec3("cameraPos", camera.position);
+    prog.SetMat4("view", player.camera.LookAt());
+    prog.SetVec3("cameraPos", player.camera.position);
 
     test.Draw(prog);
-
     DrawBox(prog, test.GetAABB());
+
+    for (auto it = world.begin(); it != world.end(); it++) {
+        it->second.Draw(prog);
+        DrawBox(prog, it->second.GetAABB());
+    }
 }
 
 void Game::Cleanup() {
