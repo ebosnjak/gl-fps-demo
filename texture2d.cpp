@@ -12,15 +12,18 @@ Texture2D::Texture2D(const Texture2D& tex) {
     pixelData = tex.pixelData;
     width = tex.width;
     height = tex.height;
+    intParams = tex.intParams;
 
     // ID must not be copied so it doesn't break if tex is destroyed and glDeleteTextures is called
     glGenTextures(1, &ID);
     Bind();
-    SetDefaultParams(); // for now all textures use the same parameters
+    for (auto it = intParams.begin(); it != intParams.end(); it++) {
+        SetParameter(it->first, it->second);
+    }
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
 }
 
-Texture2D::Texture2D(std::string _path) {
+Texture2D::Texture2D(std::string _path, const std::unordered_map< unsigned int, unsigned int >& _intParams) {
     unsigned int status = lodepng::decode(pixelData, width, height, _path);
     if (status != 0) {
         std::cout << "Failed to load texture from \"" << _path << "\"" << std::endl;
@@ -29,7 +32,17 @@ Texture2D::Texture2D(std::string _path) {
 
     glGenTextures(1, &ID);
     Bind();
-    SetDefaultParams();
+    
+    intParams = _intParams;
+    if (intParams.empty()) {
+        SetDefaultParams();
+    }
+    else {
+        for (auto it = intParams.begin(); it != intParams.end(); it++) {
+            SetParameter(it->first, it->second);
+        }
+    }
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
 }
 
@@ -41,10 +54,13 @@ Texture2D& Texture2D::operator=(const Texture2D& tex) {
     width = tex.width;
     height = tex.height;
     pixelData = tex.pixelData;
+    intParams = tex.intParams;
 
     glGenTextures(1, &ID);
     Bind();
-    SetDefaultParams();
+    for (auto it = intParams.begin(); it != intParams.end(); it++) {
+        SetParameter(it->first, it->second);
+    }
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixelData[0]);
 
     return (*this);
@@ -57,6 +73,7 @@ Texture2D& Texture2D::operator=(Texture2D&& tex) {
     width = tex.width;
     height = tex.height;
     pixelData = tex.pixelData;
+    intParams = tex.intParams;
 
     return (*this);
 }
@@ -78,12 +95,12 @@ void Texture2D::Bind() {
 void Texture2D::SetParameter(unsigned int param, int value) {
     Bind();
     glTexParameteri(GL_TEXTURE_2D, param, value);
+    intParams[param] = value;
 }
 
 void Texture2D::SetDefaultParams() {
-    Bind();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    SetParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    SetParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }

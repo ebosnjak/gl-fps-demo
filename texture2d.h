@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 class Texture2D {
 public:
@@ -14,9 +15,11 @@ public:
     std::vector< unsigned char > pixelData;
     unsigned int width, height;
 
+    std::unordered_map< unsigned int, unsigned int > intParams;
+
     Texture2D();
     Texture2D(const Texture2D& tex);
-    Texture2D(std::string _path);
+    Texture2D(std::string _path, const std::unordered_map< unsigned int, unsigned int >& _intParams = {});
     
     ~Texture2D();
 
