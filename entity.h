@@ -27,8 +27,10 @@ public:
     Mesh* mesh;
 
     Vector3 linearVelocity;
-
-    Box aabb;
+    Box customAABB;
+    bool obeysGravity;
+    bool onGround;
+    bool isSolid;
     
     Entity();
     Entity(Mesh* _mesh, Vector3 _position = Vector3(), Vector3 _rotation = Vector3(), float _scale = 1.0f);

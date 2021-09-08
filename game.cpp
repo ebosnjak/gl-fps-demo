@@ -49,30 +49,51 @@ void Game::Update(float deltaTime) {
 
     player.Rotate(Vector3(-mouseDelta.Y / 2000.0f * 360.0f, -mouseDelta.X / 2000.0f * 360.0f, 0.0f));
 
+    Vector3 velocity;
     if (IsKeyDown(Keys::W)) {
-        //camera.position += camera.Direction() * 2.0f * deltaTime;
-        player.Move(player.camera.Direction() * 2.0f * deltaTime);
+        velocity += Vector3(player.camera.Direction().X, 0.0f, player.camera.Direction().Z).Normalize() * 3.0f;
     }
     if (IsKeyDown(Keys::S)) {
-        //camera.position -= camera.Direction() * 2.0f * deltaTime;
-        player.Move(-player.camera.Direction() * 2.0f * deltaTime);
+        velocity -= Vector3(player.camera.Direction().X, 0.0f, player.camera.Direction().Z).Normalize() * 3.0f;
     }
     if (IsKeyDown(Keys::A)) {
-        //camera.position -= camera.Right() * 2.0f * deltaTime;
-        player.Move(-player.camera.Right() * 2.0f * deltaTime);
+        velocity -= player.camera.Right() * 3.0f;
     }
     if (IsKeyDown(Keys::D)) {
-        //camera.position += camera.Right() * 2.0f * deltaTime;
-        player.Move(player.camera.Right() * 2.0f * deltaTime);
+        velocity += player.camera.Right() * 3.0f;
     }
+    if (IsKeyPressed(Keys::Space)) {
+        if (player.onGround) {
+            player.onGround = false;
+            player.linearVelocity.Y = 5.0f;
+        }
+    }
+
+    if (velocity.Length() > 3.0f) {
+        velocity = velocity / velocity.Length() * 3.0f;
+    }
+
+    player.linearVelocity.X = velocity.X;
+
+    if (!player.onGround) {
+        player.linearVelocity.Y -= 9.81f * deltaTime;
+    }
+    else {
+        player.linearVelocity.Y = 0.0f;
+    }
+
+    player.linearVelocity.Z = velocity.Z;
 
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
-        std::cout << "cameraYaw: " << player.camera.yaw << std::endl;
-        std::cout << "cameraPos: " << player.camera.position.X << ", " << player.camera.position.Y << ", " << player.camera.position.Z << std::endl;
-        std::cout << "cameraDirection: " << player.camera.Direction().X << ", " << player.camera.Direction().Y << ", " << player.camera.Direction().Z << std::endl;
-        std::cout << "cameraUp: " << player.camera.Up().X << ", " << player.camera.Up().Y << ", " << player.camera.Up().Z << std::endl;
-        std::cout << "cameraRight: " << player.camera.Right().X << ", " << player.camera.Right().Y << ", " << player.camera.Right().Z << std::endl;
+        //std::cout << "cameraYaw: " << player.camera.yaw << std::endl;
+        //std::cout << "cameraPos: " << player.camera.position.X << ", " << player.camera.position.Y << ", " << player.camera.position.Z << std::endl;
+        //std::cout << "cameraDirection: " << player.camera.Direction().X << ", " << player.camera.Direction().Y << ", " << player.camera.Direction().Z << std::endl;
+        //std::cout << "cameraUp: " << player.camera.Up().X << ", " << player.camera.Up().Y << ", " << player.camera.Up().Z << std::endl;
+        //std::cout << "cameraRight: " << player.camera.Right().X << ", " << player.camera.Right().Y << ", " << player.camera.Right().Z << std::endl;
+        std::cout << "player position: " << player.GetPosition().X << ", " << player.GetPosition().Y << ", " << player.GetPosition().Z << std::endl;
+        std::cout << "player velocity: " << player.linearVelocity.X << ", " << player.linearVelocity.Y << ", " << player.linearVelocity.Z << std::endl;
+        std::cout << "player aabb pos: " << player.GetAABB().position.X << ", " << player.GetAABB().position.Y << ", " << player.GetAABB().position.Z << std::endl;
         std::cout << std::endl;
     }
 
@@ -87,11 +108,11 @@ void Game::Draw() {
     prog.SetVec3("cameraPos", player.camera.position);
 
     test.Draw(prog);
-    DrawBox(prog, test.GetAABB());
+    //DrawBox(prog, test.GetAABB());
 
     for (auto it = world.begin(); it != world.end(); it++) {
         it->second.Draw(prog);
-        DrawBox(prog, it->second.GetAABB());
+        //DrawBox(prog, it->second.GetAABB());
     }
 }
 

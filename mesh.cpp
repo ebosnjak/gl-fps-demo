@@ -270,8 +270,8 @@ void Mesh::LoadOBJ(std::string path) {
     aabb.size = Vector3(right - left, top - bottom, front - back);
 
     std::cout << "Success: Loaded 3D model from " << path << std::endl;
-    std::cout << "pos " << left << ", " << bottom << ", " << back << std::endl;
-    std::cout << "size " << aabb.size.X << ", " << aabb.size.Y << ", " << aabb.size.Z << std::endl;
+    //std::cout << "pos " << left << ", " << bottom << ", " << back << std::endl;
+    //std::cout << "size " << aabb.size.X << ", " << aabb.size.Y << ", " << aabb.size.Z << std::endl;
 }
 
 void Mesh::LoadMTL(std::string path) {
