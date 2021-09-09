@@ -174,7 +174,7 @@ void Mesh::LoadOBJ(std::string path) {
             std::stringstream ss(line);
             std::string first;
             ss >> first;
-
+            
             if (first == "v") {
                 float x, y, z;
                 ss >> x >> y >> z;
@@ -216,7 +216,7 @@ void Mesh::LoadOBJ(std::string path) {
                     int vi = -1, vti = -1, vni = -1;
                     sscanf(v.c_str(), "%d/%d/%d", &vi, &vti, &vni);
                     sscanf(v.c_str(), "%d//%d", &vi, &vni);
-                    vertices.push_back({ objVertices[vi - 1], objNormals[vni - 1], objUVs[vti - 1] });
+                    vertices.push_back({ objVertices[vi - 1], (vni == -1 ? Vector3() : objNormals[vni - 1]), (vti == -1 ? Vector2() : objUVs[vti - 1]) });
                     ++count;
                 }
 
