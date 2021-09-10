@@ -1,6 +1,7 @@
 #version 420
 
 in vec3 fragPos;
+in vec3 fragScreenPos;
 in vec3 normal;
 in vec2 texCoord;
 
@@ -23,6 +24,9 @@ struct Light {
     vec3 diffuse;
     vec3 specular;
 };
+
+uniform sampler2D noiseTex;
+uniform vec2 noiseResolution;
 
 uniform bool solidColor;
 uniform vec3 color;
@@ -53,7 +57,6 @@ void main() {
     vec3 norm = normalize(normal);
     vec3 diffuse = light.diffuse * (max(0.0, dot(norm, lightDir)) * material.diffuse * diff);
 
-    // add specular
     vec3 ref = reflect(-lightDir, norm);
     float specFactor = pow(max(0.0, dot(ref, normalize(cameraPos - fragPos))), material.shininess);
     vec3 spec = vec3(1.0, 1.0, 1.0);
@@ -62,6 +65,8 @@ void main() {
     }
     vec3 specular = light.specular * (specFactor * material.specular * spec);
 
-    vec3 result = ambient + diffuse + specular;
+    float noise = texture(noiseTex, fragScreenPos.xy + vec2(1.0, 1.0)).x;
+
+    vec3 result = ambient + diffuse + specular + mix(-0.5 / 255.0, 0.5 / 255.0, noise);
     fragColor = vec4(result, 1.0);
 }
