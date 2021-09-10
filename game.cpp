@@ -16,23 +16,29 @@ void Game::Init() {
 
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
 
-    test = Entity(Content::Instance().GetMesh("backpack"));
-    test.SetPosition(Vector3(1.0f, 3.0f, -3.0f));
+    test = Entity(Content::Instance().GetMesh("smg"));
+    test.SetPosition(Vector3(1.0f, 0.0f, -3.0f));
+    test.SetScale(0.2f);
 
-    world["floor"] = Entity(Content::Instance().GetMesh("floor"));
-    world["floor"].SetPosition(Vector3(0.0f, -2.0f, 0.0f));
+    world["floor1"] = Entity(Content::Instance().GetMesh("floor"));
+    world["floor1"].SetPosition(Vector3(0.0f, -2.0f, 0.0f));
+
+    world["floor2"] = Entity(Content::Instance().GetMesh("floor"));
+    world["floor2"].SetPosition(Vector3(25.0f, -1.0f, 0.0f));
+
+    world["floor3"] = Entity(Content::Instance().GetMesh("floor"));
+    world["floor3"].SetPosition(Vector3(50.0f, 0.0f, 0.0f));
 
     // TODO: 
-    // - tie player camera to an entity which obeys gravity and can't fall through the ground
-    // - also jumping
-    // - obstacles through which the player cannot move
+    // - implement quaternions!
+    // - improve Entity class (reduce amount of spaghetti)
     // - gun viewmodel
     // - actual shooting and hit detection
 
     player = Player(Vector3(0.0f, 2.0f, 0.0f));
     //camera = Camera(Vector3(0.0f, 2.0f, 4.0f), 90.0f, 0.0f);
 
-    Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 1.0f, 100.0f);
+    Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
     prog.SetMat4("proj", proj);
 
     prog.SetVec4("light.vector", Vector4(-1.0f, -5.0f, -2.0f, 0.0f));
@@ -40,14 +46,19 @@ void Game::Init() {
     prog.SetVec3("light.ambient", Vector3(0.1f, 0.1f, 0.1f));
     prog.SetVec3("light.diffuse", Vector3(0.7f, 0.7f, 0.7f));
     prog.SetVec3("light.specular", Vector3(0.8f, 0.8f, 0.8f));
+
+    prog.SetInt("noiseTex", 10);
+    glActiveTexture(GL_TEXTURE10);
+    Content::Instance().GetTexture("noise")->Bind();
+    prog.SetVec2("noiseResolution", Vector2(Content::Instance().GetTexture("noise")->width, Content::Instance().GetTexture("noise")->height));
+
+    player.SetRotation(glm::normalize(glm::quat()));
 }
 
 void Game::Update(float deltaTime) {
     Vector2 mouseDelta = GetMouseDelta();
-    //camera.yaw -= (mouseDelta.X / 2000.0f) * 360.0f;
-    //camera.pitch -= (mouseDelta.Y / 2000.0f) * 360.0f;
-
-    player.Rotate(Vector3(-mouseDelta.Y / 2000.0f * 360.0f, -mouseDelta.X / 2000.0f * 360.0f, 0.0f));
+    // float deltaYaw = -mouseDelta.X / 2000.0f * 360.0f;
+    // float deltaPitch = -mouseDelta.Y / 2000.0f * 360.0f;
 
     Vector3 velocity;
     if (IsKeyDown(Keys::W)) {
@@ -86,14 +97,12 @@ void Game::Update(float deltaTime) {
 
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
-        //std::cout << "cameraYaw: " << player.camera.yaw << std::endl;
-        //std::cout << "cameraPos: " << player.camera.position.X << ", " << player.camera.position.Y << ", " << player.camera.position.Z << std::endl;
-        //std::cout << "cameraDirection: " << player.camera.Direction().X << ", " << player.camera.Direction().Y << ", " << player.camera.Direction().Z << std::endl;
-        //std::cout << "cameraUp: " << player.camera.Up().X << ", " << player.camera.Up().Y << ", " << player.camera.Up().Z << std::endl;
-        //std::cout << "cameraRight: " << player.camera.Right().X << ", " << player.camera.Right().Y << ", " << player.camera.Right().Z << std::endl;
         std::cout << "player position: " << player.GetPosition().X << ", " << player.GetPosition().Y << ", " << player.GetPosition().Z << std::endl;
+        std::cout << "player rotation: " << player.GetRotationEuler().X << ", " << player.GetRotationEuler().Y << ", " << player.GetRotationEuler().Z << std::endl;
         std::cout << "player velocity: " << player.linearVelocity.X << ", " << player.linearVelocity.Y << ", " << player.linearVelocity.Z << std::endl;
         std::cout << "player aabb pos: " << player.GetAABB().position.X << ", " << player.GetAABB().position.Y << ", " << player.GetAABB().position.Z << std::endl;
+        std::cout << "player camera yaw: " << player.camera.yaw << std::endl;
+        std::cout << "player camera pitch: " << player.camera.pitch << std::endl;
         std::cout << std::endl;
     }
 
@@ -108,7 +117,6 @@ void Game::Draw() {
     prog.SetVec3("cameraPos", player.camera.position);
 
     test.Draw(prog);
-    //DrawBox(prog, test.GetAABB());
 
     for (auto it = world.begin(); it != world.end(); it++) {
         it->second.Draw(prog);
