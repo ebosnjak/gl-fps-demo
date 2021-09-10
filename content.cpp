@@ -9,8 +9,18 @@ Content& Content::Instance() {
 
 void Content::Load() {
     textures["planks"] = Texture2D("assets/planks.png");
+    textures["noise"] = Texture2D(
+                            "assets/noise.png",
+                            { 
+                                { GL_TEXTURE_MIN_FILTER, GL_NEAREST }, 
+                                { GL_TEXTURE_MAG_FILTER, GL_NEAREST }, 
+                                { GL_TEXTURE_WRAP_S, GL_REPEAT },
+                                { GL_TEXTURE_WRAP_T, GL_REPEAT } 
+                            });
 
-    meshes["backpack"] = Mesh("assets/backpack/backpack.obj");
+    // meshes["backpack"] = Mesh("assets/backpack/backpack.obj");
+
+    meshes["smg"] = Mesh("assets/gun2/ump_tri.obj");
 
     meshes["unitcube"] = Mesh("assets/unitcube.obj");
     meshes["unitcube"].ignoreMaterials = true;
