@@ -64,7 +64,7 @@ private:
 public:
     Camera camera;
 
-    Player(Vector3 _position = Vector3(), glm::quat _rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
+    Player(Vector3 _position = Vector3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);

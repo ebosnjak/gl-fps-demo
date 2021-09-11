@@ -193,6 +193,7 @@ Player::Player(Vector3 _position, glm::quat _orientation, float _scale) {
 
     obeysGravity = true;
     pitchLimit = 87.0f * 3.14159f / 180.0f;
+    yaw = 0.0f; pitch = 0.0f;
 }
 
 void Player::Update(float deltaTime) {
