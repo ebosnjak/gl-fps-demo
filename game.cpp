@@ -30,13 +30,12 @@ void Game::Init() {
     world["floor3"].SetPosition(Vector3(50.0f, 0.0f, 0.0f));
 
     // TODO: 
-    // - implement quaternions!
+    // - implement custom Quaternions
     // - improve Entity class (reduce amount of spaghetti)
     // - gun viewmodel
     // - actual shooting and hit detection
 
-    player = Player(Vector3(0.0f, 2.0f, 0.0f));
-    //camera = Camera(Vector3(0.0f, 2.0f, 4.0f), 90.0f, 0.0f);
+    player = Player(Vector3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
 
     Matrix proj = Matrix::CreatePerspective(45.0f, (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
     prog.SetMat4("proj", proj);
@@ -51,58 +50,16 @@ void Game::Init() {
     glActiveTexture(GL_TEXTURE10);
     Content::Instance().GetTexture("noise")->Bind();
     prog.SetVec2("noiseResolution", Vector2(Content::Instance().GetTexture("noise")->width, Content::Instance().GetTexture("noise")->height));
-
-    player.SetRotation(glm::normalize(glm::quat()));
 }
 
 void Game::Update(float deltaTime) {
-    Vector2 mouseDelta = GetMouseDelta();
-    // float deltaYaw = -mouseDelta.X / 2000.0f * 360.0f;
-    // float deltaPitch = -mouseDelta.Y / 2000.0f * 360.0f;
-
-    Vector3 velocity;
-    if (IsKeyDown(Keys::W)) {
-        velocity += Vector3(player.camera.Direction().X, 0.0f, player.camera.Direction().Z).Normalize() * 3.0f;
-    }
-    if (IsKeyDown(Keys::S)) {
-        velocity -= Vector3(player.camera.Direction().X, 0.0f, player.camera.Direction().Z).Normalize() * 3.0f;
-    }
-    if (IsKeyDown(Keys::A)) {
-        velocity -= player.camera.Right() * 3.0f;
-    }
-    if (IsKeyDown(Keys::D)) {
-        velocity += player.camera.Right() * 3.0f;
-    }
-    if (IsKeyPressed(Keys::Space)) {
-        if (player.onGround) {
-            player.onGround = false;
-            player.linearVelocity.Y = 5.0f;
-        }
-    }
-
-    if (velocity.Length() > 3.0f) {
-        velocity = velocity / velocity.Length() * 3.0f;
-    }
-
-    player.linearVelocity.X = velocity.X;
-
-    if (!player.onGround) {
-        player.linearVelocity.Y -= 9.81f * deltaTime;
-    }
-    else {
-        player.linearVelocity.Y = 0.0f;
-    }
-
-    player.linearVelocity.Z = velocity.Z;
-
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
         std::cout << "player position: " << player.GetPosition().X << ", " << player.GetPosition().Y << ", " << player.GetPosition().Z << std::endl;
-        std::cout << "player rotation: " << player.GetRotationEuler().X << ", " << player.GetRotationEuler().Y << ", " << player.GetRotationEuler().Z << std::endl;
+        std::cout << "player rotation: " << player.GetOrientationEuler().X << ", " << player.GetOrientationEuler().Y << ", " << player.GetOrientationEuler().Z << std::endl;
         std::cout << "player velocity: " << player.linearVelocity.X << ", " << player.linearVelocity.Y << ", " << player.linearVelocity.Z << std::endl;
         std::cout << "player aabb pos: " << player.GetAABB().position.X << ", " << player.GetAABB().position.Y << ", " << player.GetAABB().position.Z << std::endl;
-        std::cout << "player camera yaw: " << player.camera.yaw << std::endl;
-        std::cout << "player camera pitch: " << player.camera.pitch << std::endl;
+        std::cout << "player camera direction: " << player.camera.Direction().X << ", " << player.camera.Direction().Y << ", " << player.camera.Direction().Z << std::endl;
         std::cout << std::endl;
     }
 
