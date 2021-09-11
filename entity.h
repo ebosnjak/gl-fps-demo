@@ -12,7 +12,7 @@ class Entity {
 protected:
     Matrix modelMatrix;
     Vector3 position;
-    Vector3 rotation;   // euler angles
+    glm::quat orientation;
     float scale;
 
     Vector3 up;
@@ -33,7 +33,7 @@ public:
     bool isSolid;
     
     Entity();
-    Entity(Mesh* _mesh, Vector3 _position = Vector3(), Vector3 _rotation = Vector3(), float _scale = 1.0f);
+    Entity(Mesh* _mesh, Vector3 _position = Vector3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);
@@ -44,19 +44,27 @@ public:
     void SetPosition(const Vector3& pos);
     void Move(const Vector3& delta);
 
-    Vector3 GetRotation();
-    void SetRotation(const Vector3& rot);
-    void Rotate(const Vector3& delta);
+    glm::quat GetOrientation();
+    Vector3 GetOrientationEuler();
+    void SetOrientation(const glm::quat& q);
+    void SetOrientation(const Vector3& v);
+    void SetOrientation(const Vector3& axis, float angle);
+    void Rotate(const glm::quat& q);
+    void Rotate(const Vector3& axis, float angle);
 
     float GetScale();
     void SetScale(float sc);
 };
 
 class Player : public Entity {
+private:
+    float yaw, pitch;
+    float pitchLimit;
+
 public:
     Camera camera;
 
-    Player(Vector3 _position = Vector3(), Vector3 _rotation = Vector3(), float _scale = 1.0f);
+    Player(Vector3 _position = Vector3(), glm::quat _rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);

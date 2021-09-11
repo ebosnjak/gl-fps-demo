@@ -8,12 +8,13 @@ Entity::Entity() {
     obeysGravity = false;
     onGround = false;
     isSolid = true;
+    orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
-Entity::Entity(Mesh* _mesh, Vector3 _position, Vector3 _rotation, float _scale) {
+Entity::Entity(Mesh* _mesh, Vector3 _position, glm::quat _orientation, float _scale) {
     mesh = _mesh;
     position = _position;
-    rotation = _rotation;
+    orientation = _orientation;
     scale = _scale;
 
     obeysGravity = false;
@@ -123,9 +124,8 @@ Box Entity::GetAABB() {
 }
 
 void Entity::ComputeMatrix() {
-    // only y rotation for now
+    // add rotations
     modelMatrix = Matrix::CreateTranslation(position) *
-                  Matrix::CreateFromAxisAngle(Vector3(0.0f, 1.0f, 0.0f), rotation.Y) *
                   Matrix::CreateScale(Vector3(scale, scale, scale));
 }
 
@@ -143,18 +143,33 @@ void Entity::Move(const Vector3& delta) {
     ComputeMatrix();
 }
 
-Vector3 Entity::GetRotation() {
-    return rotation;
+glm::quat Entity::GetOrientation() {
+    return orientation;
 }
 
-void Entity::SetRotation(const Vector3& rot) {
-    rotation = rot;
-    ComputeMatrix();
+Vector3 Entity::GetOrientationEuler() {
+    glm::vec3 tmp = glm::eulerAngles(orientation);
+    return Vector3(glm::degrees(tmp.x), glm::degrees(tmp.y), glm::degrees(tmp.z));
 }
 
-void Entity::Rotate(const Vector3& delta) {
-    rotation += delta;
-    ComputeMatrix();
+void Entity::SetOrientation(const glm::quat& q) {
+    orientation = q;
+}
+
+void Entity::SetOrientation(const Vector3& v) {
+    orientation = glm::quat(glm::vec3(glm::radians(v.X), glm::radians(v.Y), glm::radians(v.Z)));
+}
+
+void Entity::SetOrientation(const Vector3& axis, float angle) {
+    orientation = glm::angleAxis(glm::radians(angle), glm::vec3(axis.X, axis.Y, axis.Z));
+}
+
+void Entity::Rotate(const glm::quat& rot) {
+    orientation = rot * orientation;
+}
+
+void Entity::Rotate(const Vector3& axis, float angle) {
+    orientation = glm::angleAxis(glm::radians(angle), glm::vec3(axis.X, axis.Y, axis.Z)) * orientation;
 }
 
 float Entity::GetScale() {
@@ -167,9 +182,9 @@ void Entity::SetScale(float sc) {
 }
 
 
-Player::Player(Vector3 _position, Vector3 _rotation, float _scale) {
+Player::Player(Vector3 _position, glm::quat _orientation, float _scale) {
     position = _position;
-    rotation = _rotation;
+    orientation = _orientation;
     scale = _scale;
 
     mesh = nullptr;
@@ -177,15 +192,65 @@ Player::Player(Vector3 _position, Vector3 _rotation, float _scale) {
     camera = Camera(position);
 
     obeysGravity = true;
+    pitchLimit = 87.0f * 3.14159f / 180.0f;
 }
 
 void Player::Update(float deltaTime) {
-    Entity::Update(deltaTime);
+    Vector2 mouseDelta = gameEngine->GetMouseDelta();
+    float deltaYaw = -mouseDelta.X / 1000.0f * 3.14159f;
+    float deltaPitch = -mouseDelta.Y / 1000.0f * 3.14159f;
+
+    yaw += deltaYaw;
+    pitch += deltaPitch;
+
+    if (pitch >= pitchLimit) pitch = pitchLimit;
+    if (pitch <= -pitchLimit) pitch = -pitchLimit;
+
+    orientation = glm::quat(glm::vec3(pitch, yaw, 0.0f));
+    
+    Vector3 velocity;
+    if (gameEngine->IsKeyDown(Keys::W)) {
+        velocity += Vector3(camera.Direction().X, 0.0f, camera.Direction().Z).Normalize() * 3.0f;
+    }
+    if (gameEngine->IsKeyDown(Keys::S)) {
+        velocity -= Vector3(camera.Direction().X, 0.0f, camera.Direction().Z).Normalize() * 3.0f;
+    }
+    if (gameEngine->IsKeyDown(Keys::A)) {
+        velocity -= camera.Right() * 3.0f;
+    }
+    if (gameEngine->IsKeyDown(Keys::D)) {
+        velocity += camera.Right() * 3.0f;
+    }
+    if (gameEngine->IsKeyPressed(Keys::Space)) {
+        if (onGround) {
+            onGround = false;
+            linearVelocity.Y = 5.0f;
+        }
+    }
+
+    if (velocity.Length() > 3.0f) {
+        velocity = velocity / velocity.Length() * 3.0f;
+    }
+
+    linearVelocity.X = velocity.X;
+
+    if (!onGround) {
+        linearVelocity.Y -= 9.81f * deltaTime;
+    }
+    else {
+        linearVelocity.Y = 0.0f;
+    }
+
+    linearVelocity.Z = velocity.Z;
 
     camera.position = position;
     camera.position.Y += 1.0f;
-    camera.yaw = rotation.Y;
-    camera.pitch = rotation.X;
+
+    camera.orientation = orientation;
+
+    camera.Update(deltaTime);
+
+    Entity::Update(deltaTime);
 }
 
 void Player::Draw(ShaderProgram& prog) {
