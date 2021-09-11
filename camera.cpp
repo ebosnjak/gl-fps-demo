@@ -1,44 +1,44 @@
 #include "camera.h"
 
-Camera::Camera(Vector3 _position, float _yaw, float _pitch) {
+Camera::Camera(Vector3 _position, glm::quat _orientation) {
     position = _position;
-    yaw = _yaw;
-    pitch = _pitch;
-
-    ComputeVectors();
+    orientation = _orientation;
+    
+    glm::quat q = orientation * glm::quat(0.0f, 0.0f, 0.0f, -1.0f) * glm::conjugate(orientation);
+    direction = Vector3(q.x, q.y, q.z).Normalize();
+    right = Vector3::Cross(direction, Vector3(0.0f, 1.0f, 0.0f)).Normalize();
+    up = Vector3::Cross(right, direction).Normalize();
 }
 
 Matrix Camera::LookAt() {
-    ComputeVectors();
-    return Matrix::CreateLookAt(position, position + direction, up);
+    return viewMatrix;
 }
 
 Vector3 Camera::Direction() {
-    ComputeVectors();
     return direction;
 }
 
 Vector3 Camera::Up() {
-    ComputeVectors();
     return up;
 }
 
 Vector3 Camera::Right() {
-    ComputeVectors();
     return right;
 }
 
-void Camera::ComputeVectors() {
-    if (lastYaw != yaw || lastPitch != pitch || lastPosition != position) {
-        if (pitch > 87.0f) pitch = 87.0f;
-        if (pitch < -87.0f) pitch = -87.0f;
-
-        direction = Vector3(Math::Cos(yaw) * Math::Cos(pitch), Math::Sin(pitch), -Math::Sin(yaw) * Math::Cos(pitch));
+void Camera::Update(float deltaTime) {
+    if (lastPosition != position || lastOrient != orientation) {
+        glm::quat q = orientation * glm::quat(0.0f, 0.0f, 0.0f, -1.0f) * glm::conjugate(orientation);
+        direction = Vector3(q.x, q.y, q.z).Normalize();
         right = Vector3::Cross(direction, Vector3(0.0f, 1.0f, 0.0f)).Normalize();
         up = Vector3::Cross(right, direction).Normalize();
 
+        glm::mat4 rotate = glm::mat4_cast(glm::inverse(orientation));
+        glm::mat4 transl = glm::translate(glm::mat4(1.0f), glm::vec3(-position.X, -position.Y, -position.Z));
+
+        viewMatrix = Matrix(rotate * transl);
+
         lastPosition = position;
-        lastYaw = yaw;
-        lastPitch = pitch;
+        lastOrient = orientation;
     }
 }

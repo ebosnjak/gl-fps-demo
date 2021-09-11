@@ -11,22 +11,21 @@ private:
     Vector3 right;
 
     Vector3 lastPosition;
-    float lastYaw, lastPitch;
+    glm::quat lastOrient;
 
-    void ComputeVectors();
+    Matrix viewMatrix;
 
 public:
     Vector3 position;
+    glm::quat orientation;
 
-    float yaw;
-    float pitch;
-
-    Camera(Vector3 _position = Vector3(0.0f, 0.0f, 0.0f), float _yaw = 0.0f, float _pitch = 0.0f);
+    Camera(Vector3 _position = Vector3(0.0f, 0.0f, 0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
 
     Matrix LookAt();
     Vector3 Direction();
     Vector3 Up();
     Vector3 Right();
+    void Update(float deltaTime);
 };
 
 #endif
