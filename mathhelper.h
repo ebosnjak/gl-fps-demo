@@ -3,6 +3,11 @@
 
 #include <cmath>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 namespace Math {
 	const double PI = 3.1415f;
 
@@ -48,6 +53,7 @@ struct Vector2_generic {
 	T X, Y;
 	Vector2_generic() { X = (T)0; Y = (T)0; }
 	Vector2_generic(T tx, T ty) { X = tx; Y = ty; }
+	Vector2_generic(const glm::vec2& vec) { X = vec.x; Y = vec.y; }
 
 	T Length() {
 		return sqrtf(X * X + Y * Y);
@@ -132,6 +138,7 @@ struct Vector3_generic {
 	T X, Y, Z;
 	Vector3_generic() { X = (T)0; Y = (T)0; Z = (T)0; }
 	Vector3_generic(T tx, T ty, T tz) { X = tx; Y = ty; Z = tz;  }
+	Vector3_generic(const glm::vec3& vec) { X = vec.x; Y = vec.y; Z = vec.z; }
 
 	T Length() {
 		return sqrtf(X * X + Y * Y + Z * Z);
@@ -310,6 +317,13 @@ struct Matrix_generic {
 		SetRow(1, Vector4_generic< T >((T)0, (T)1, (T)0, (T)0));
 		SetRow(2, Vector4_generic< T >((T)0, (T)0, (T)1, (T)0));
 		SetRow(3, Vector4_generic< T >((T)0, (T)0, (T)0, (T)1));
+	}
+
+	Matrix_generic(const glm::mat4& mat) {
+		SetColumn(0, Vector4_generic< T >(mat[0][0], mat[0][1], mat[0][2], mat[0][3]));
+		SetColumn(1, Vector4_generic< T >(mat[1][0], mat[1][1], mat[1][2], mat[1][3]));
+		SetColumn(2, Vector4_generic< T >(mat[2][0], mat[2][1], mat[2][2], mat[2][3]));
+		SetColumn(3, Vector4_generic< T >(mat[3][0], mat[3][1], mat[3][2], mat[3][3]));
 	}
 
 	void SetColumn(int i, const Vector4_generic< T >& v) {
