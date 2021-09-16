@@ -110,25 +110,22 @@ void ShaderProgram::SetFloat(const std::string& name, float val) {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), val);
 }
 
-void ShaderProgram::SetMat4(const std::string& name, const Matrix& mat) {
+void ShaderProgram::SetMat4(const std::string& name, const glm::mat4& mat) {
     Use();
-
-    // transpose is true because glUniformMatrix assumes column major order,
-    // but Matrix class in mathhelper.h uses row major order
-    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_TRUE, &mat.M[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-void ShaderProgram::SetVec2(const std::string& name, const Vector2& vec) {
+void ShaderProgram::SetVec2(const std::string& name, const glm::vec2& vec) {
     Use();
-    glUniform2f(glGetUniformLocation(ID, name.c_str()), vec.X, vec.Y);
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), vec.x, vec.y);
 }
 
-void ShaderProgram::SetVec3(const std::string& name, const Vector3& vec) {
+void ShaderProgram::SetVec3(const std::string& name, const glm::vec3& vec) {
     Use();
-    glUniform3f(glGetUniformLocation(ID, name.c_str()), vec.X, vec.Y, vec.Z);
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), vec.x, vec.y, vec.z);
 }
 
-void ShaderProgram::SetVec4(const std::string& name, const Vector4& vec) {
+void ShaderProgram::SetVec4(const std::string& name, const glm::vec4& vec) {
     Use();
-    glUniform4f(glGetUniformLocation(ID, name.c_str()), vec.X, vec.Y, vec.Z, vec.W);
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), vec.x, vec.y, vec.z, vec.w);
 }

@@ -43,10 +43,10 @@ public:
 
     void SetInt(const std::string& name, int val);
     void SetFloat(const std::string& name, float val);
-    void SetMat4(const std::string& name, const Matrix& mat);
-    void SetVec2(const std::string& name, const Vector2& vec);
-    void SetVec3(const std::string& name, const Vector3& vec);
-    void SetVec4(const std::string& name, const Vector4& vec);
+    void SetMat4(const std::string& name, const glm::mat4& mat);
+    void SetVec2(const std::string& name, const glm::vec2& vec);
+    void SetVec3(const std::string& name, const glm::vec3& vec);
+    void SetVec4(const std::string& name, const glm::vec4& vec);
 };
 
 #endif
