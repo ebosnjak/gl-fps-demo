@@ -6,25 +6,25 @@
 
 class Camera {
 private:
-    Vector3 direction;
-    Vector3 up;
-    Vector3 right;
+    glm::vec3 direction;
+    glm::vec3 up;
+    glm::vec3 right;
 
-    Vector3 lastPosition;
+    glm::vec3 lastPosition;
     glm::quat lastOrient;
 
-    Matrix viewMatrix;
+    glm::mat4 viewMatrix;
 
 public:
-    Vector3 position;
+    glm::vec3 position;
     glm::quat orientation;
 
-    Camera(Vector3 _position = Vector3(0.0f, 0.0f, 0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
+    Camera(glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
 
-    Matrix LookAt();
-    Vector3 Direction();
-    Vector3 Up();
-    Vector3 Right();
+    glm::mat4 LookAt();
+    glm::vec3 Direction();
+    glm::vec3 Up();
+    glm::vec3 Right();
     void Update(float deltaTime);
 };
 

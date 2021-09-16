@@ -24,7 +24,7 @@ void Content::Load() {
 
     meshes["unitcube"] = Mesh("assets/unitcube.obj");
     meshes["unitcube"].ignoreMaterials = true;
-    meshes["unitcube"].color = Vector3(1.0f, 0.1f, 0.1f);
+    meshes["unitcube"].color = glm::vec3(1.0f, 0.1f, 0.1f);
 
     //meshes["shotgun"] = Mesh("assets/shotgun_tri.obj");
     meshes["floor"] = Mesh("assets/floor.obj");

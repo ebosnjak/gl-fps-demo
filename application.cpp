@@ -268,12 +268,12 @@ bool Application::IsKeyReleased(Keys key) {
     return !(keyState[kcode / 8] & (1 << (kcode % 8))) && (lastKeyState[kcode / 8] & (1 << (kcode % 8)));
 }
 
-Vector2 Application::GetMousePos() {
-    return Vector2(mouseX, mouseY);
+glm::vec2 Application::GetMousePos() {
+    return glm::vec2(mouseX, mouseY);
 }
 
-Vector2 Application::GetMouseDelta() {
-    return Vector2(mouseX - lastMouseX, mouseY - lastMouseY);
+glm::vec2 Application::GetMouseDelta() {
+    return glm::vec2(mouseX - lastMouseX, mouseY - lastMouseY);
 }
 
 void Application::SetCursorLocked(bool locked) {

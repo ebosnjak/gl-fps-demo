@@ -19,26 +19,26 @@ Mesh::Mesh(const Mesh& m) {
 
 Mesh::Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsigned int >& _textures, const std::vector< unsigned int >& _indices) {
     ignoreMaterials = true;
-    color = Vector3(1.0f, 1.0f, 1.0f);
+    color = glm::vec3(1.0f, 1.0f, 1.0f);
     textures = _textures;
     vertices = _vertices;
     indices = _indices;
 
-    float left = vertices[0].position.X, bottom = vertices[0].position.Y, back = vertices[0].position.Z;
+    float left = vertices[0].position.x, bottom = vertices[0].position.y, back = vertices[0].position.z;
     float right = left, top = bottom, front = back;
 
     for (int i = 1; i < vertices.size(); i++) {
-        left = std::min(left, vertices[i].position.X);
-        bottom = std::min(bottom, vertices[i].position.Y);
-        back = std::min(back, vertices[i].position.Z);
+        left = std::min(left, vertices[i].position.x);
+        bottom = std::min(bottom, vertices[i].position.y);
+        back = std::min(back, vertices[i].position.z);
 
-        right = std::max(right, vertices[i].position.X);
-        top = std::max(top, vertices[i].position.Y);
-        front = std::max(front, vertices[i].position.Z);
+        right = std::max(right, vertices[i].position.x);
+        top = std::max(top, vertices[i].position.y);
+        front = std::max(front, vertices[i].position.z);
     }
 
-    aabb.position = Vector3(left, bottom, back);
-    aabb.size = Vector3(right - left, top - bottom, front - back);
+    aabb.position = glm::vec3(left, bottom, back);
+    aabb.size = glm::vec3(right - left, top - bottom, front - back);
 
     int removed = 0;
     while (textures.size() > GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS) {
@@ -55,7 +55,7 @@ Mesh::Mesh(const std::vector< VertexData >& _vertices, const std::vector< unsign
 
 Mesh::Mesh(const std::string& _path) {
     ignoreMaterials = false;
-    color = Vector3(1.0f, 1.0f, 1.0f);
+    color = glm::vec3(1.0f, 1.0f, 1.0f);
     LoadOBJ(_path);
     InitBuffers();
 }
@@ -155,8 +155,8 @@ void Mesh::Draw(ShaderProgram& prog) {
 }
 
 void Mesh::LoadOBJ(std::string path) {
-    std::vector< Vector3 > objVertices, objNormals;
-    std::vector< Vector2 > objUVs;
+    std::vector< glm::vec3 > objVertices, objNormals;
+    std::vector< glm::vec2 > objUVs;
 
     int idx = 0;
     int pieceStart = 0, pieceVCount = 0;
@@ -179,7 +179,7 @@ void Mesh::LoadOBJ(std::string path) {
                 float x, y, z;
                 ss >> x >> y >> z;
 
-                objVertices.push_back(Vector3(x, y, z));
+                objVertices.push_back(glm::vec3(x, y, z));
 
                 if (flag) {
                     flag = false;
@@ -201,13 +201,13 @@ void Mesh::LoadOBJ(std::string path) {
                 float x, y, z;
                 ss >> x >> y >> z;
 
-                objNormals.push_back(Vector3(x, y, z));
+                objNormals.push_back(glm::vec3(x, y, z));
             }
             else if (first == "vt") {
                 float u, v;
                 ss >> u >> v;
 
-                objUVs.push_back(Vector2(u, v));
+                objUVs.push_back(glm::vec2(u, v));
             } 
             else if (first == "f") {
                 std::string v;
@@ -216,7 +216,7 @@ void Mesh::LoadOBJ(std::string path) {
                     int vi = -1, vti = -1, vni = -1;
                     sscanf(v.c_str(), "%d/%d/%d", &vi, &vti, &vni);
                     sscanf(v.c_str(), "%d//%d", &vi, &vni);
-                    vertices.push_back({ objVertices[vi - 1], (vni == -1 ? Vector3() : objNormals[vni - 1]), (vti == -1 ? Vector2() : objUVs[vti - 1]) });
+                    vertices.push_back({ objVertices[vi - 1], (vni == -1 ? glm::vec3(0.0f) : objNormals[vni - 1]), (vti == -1 ? glm::vec2(0.0f) : objUVs[vti - 1]) });
                     ++count;
                 }
 
@@ -266,8 +266,8 @@ void Mesh::LoadOBJ(std::string path) {
         std::cout << "Warning: \"" << path << "\" doesn't have triangulated faces, this may cause issues" << std::endl;
     }
 
-    aabb.position = Vector3(left, bottom, back);
-    aabb.size = Vector3(right - left, top - bottom, front - back);
+    aabb.position = glm::vec3(left, bottom, back);
+    aabb.size = glm::vec3(right - left, top - bottom, front - back);
 
     std::cout << "Success: Loaded 3D model from " << path << std::endl;
     //std::cout << "pos " << left << ", " << bottom << ", " << back << std::endl;
@@ -286,9 +286,9 @@ void Mesh::LoadMTL(std::string path) {
 
             if (first == "newmtl") {
                 ss >> currentName;
-                materials[currentName].ambient = Vector3(0.1f, 0.1f, 0.1f);
-                materials[currentName].diffuse = Vector3(0.3f, 0.3f, 0.3f);
-                materials[currentName].specular = Vector3(0.8f, 0.8f, 0.8f);
+                materials[currentName].ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+                materials[currentName].diffuse = glm::vec3(0.3f, 0.3f, 0.3f);
+                materials[currentName].specular = glm::vec3(0.8f, 0.8f, 0.8f);
                 materials[currentName].shininess = 16.0f;
                 materials[currentName].useDiffMap = false;
                 materials[currentName].useBumpMap = false;
@@ -297,17 +297,17 @@ void Mesh::LoadMTL(std::string path) {
             else if (first == "Ka") {
                 float r, g, b;
                 ss >> r >> g >> b;
-                materials[currentName].ambient = Vector3(r, g, b);
+                materials[currentName].ambient = glm::vec3(r, g, b);
             }
             else if (first == "Kd") {
                 float r, g, b;
                 ss >> r >> g >> b;
-                materials[currentName].diffuse = Vector3(r, g, b);
+                materials[currentName].diffuse = glm::vec3(r, g, b);
             }
             else if (first == "Ks") {
                 float r, g, b;
                 ss >> r >> g >> b;
-                materials[currentName].specular = Vector3(r, g, b);
+                materials[currentName].specular = glm::vec3(r, g, b);
             }
             else if (first == "Ns") {
                 float coeff;

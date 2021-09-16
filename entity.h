@@ -10,14 +10,14 @@ class Game;
 
 class Entity {
 protected:
-    Matrix modelMatrix;
-    Vector3 position;
+    glm::mat4 modelMatrix;
+    glm::vec3 position;
     glm::quat orientation;
     float scale;
 
-    Vector3 up;
-    Vector3 direction;
-    Vector3 right;
+    glm::vec3 up;
+    glm::vec3 direction;
+    glm::vec3 right;
 
     void ComputeMatrix();
 
@@ -26,31 +26,31 @@ public:
     
     Mesh* mesh;
 
-    Vector3 linearVelocity;
+    glm::vec3 linearVelocity;
     Box customAABB;
     bool obeysGravity;
     bool onGround;
     bool isSolid;
     
     Entity();
-    Entity(Mesh* _mesh, Vector3 _position = Vector3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
+    Entity(Mesh* _mesh, glm::vec3 _position = glm::vec3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);
 
     Box GetAABB();
 
-    Vector3 GetPosition();
-    void SetPosition(const Vector3& pos);
-    void Move(const Vector3& delta);
+    glm::vec3 GetPosition();
+    void SetPosition(const glm::vec3& pos);
+    void Move(const glm::vec3& delta);
 
     glm::quat GetOrientation();
-    Vector3 GetOrientationEuler();
+    glm::vec3 GetOrientationEuler();
     void SetOrientation(const glm::quat& q);
-    void SetOrientation(const Vector3& v);
-    void SetOrientation(const Vector3& axis, float angle);
+    void SetOrientation(const glm::vec3& v);
+    void SetOrientation(const glm::vec3& axis, float angle);
     void Rotate(const glm::quat& q);
-    void Rotate(const Vector3& axis, float angle);
+    void Rotate(const glm::vec3& axis, float angle);
 
     float GetScale();
     void SetScale(float sc);
@@ -64,7 +64,7 @@ private:
 public:
     Camera camera;
 
-    Player(Vector3 _position = Vector3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
+    Player(glm::vec3 _position = glm::vec3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);

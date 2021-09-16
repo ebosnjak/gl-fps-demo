@@ -14,9 +14,9 @@
 #include <unordered_map>
 
 struct VertexData {
-    Vector3 position;
-    Vector3 normal;
-    Vector2 texCoords;
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 texCoords;
 };
 
 struct OffsetData {
@@ -26,9 +26,9 @@ struct OffsetData {
 };
 
 struct Material {
-    Vector3 ambient;
-    Vector3 diffuse;
-    Vector3 specular;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
     float shininess;
     bool useDiffMap, useBumpMap, useSpecMap;
     Texture2D diffuseMap, bumpMap, specularMap;
@@ -43,7 +43,7 @@ private:
 
 public:
     bool ignoreMaterials;
-    Vector3 color;
+    glm::vec3 color;
     
     std::vector< OffsetData > offsets;
     std::vector< VertexData > vertices;

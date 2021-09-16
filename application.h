@@ -165,8 +165,8 @@ public:
     bool IsButtonPressed(Mouse button);
     bool IsButtonReleased(Mouse button);
 
-    Vector2 GetMousePos();
-    Vector2 GetMouseDelta();
+    glm::vec2 GetMousePos();
+    glm::vec2 GetMouseDelta();
 
     void SetCursorLocked(bool locked);
 };
