@@ -20,14 +20,15 @@ void Content::Load() {
 
     // meshes["backpack"] = Mesh("assets/backpack/backpack.obj");
 
+    //meshes["shotgun"] = Mesh("assets/shotgun_tri.obj");
     meshes["smg"] = Mesh("assets/gun2/ump_tri.obj");
 
     meshes["unitcube"] = Mesh("assets/unitcube.obj");
     meshes["unitcube"].ignoreMaterials = true;
     meshes["unitcube"].color = glm::vec3(1.0f, 0.1f, 0.1f);
 
-    //meshes["shotgun"] = Mesh("assets/shotgun_tri.obj");
     meshes["floor"] = Mesh("assets/floor.obj");
+    meshes["wall"] = Mesh("assets/wall.obj");
 }
 
 Texture2D* Content::GetTexture(const std::string& name) {
