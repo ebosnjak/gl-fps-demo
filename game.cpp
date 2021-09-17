@@ -12,6 +12,7 @@ void Game::Init() {
     SetCursorLocked(true);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
     glEnable(GL_MULTISAMPLE);
 
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
@@ -29,10 +30,13 @@ void Game::Init() {
     world["floor3"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor3"].SetPosition(glm::vec3(50.0f, 0.0f, 0.0f));
 
+    world["wall1"] = Entity(Content::Instance().GetMesh("wall"));
+    world["wall1"].SetPosition(glm::vec3(0.0f, 0.0f, -13.0f));
+
     // TODO: 
-    // - implement custom Quaternions
-    // - improve Entity class (reduce amount of spaghetti)
-    // - gun viewmodel
+    // - add interpolation to fix stuttery looking around
+    // - gun viewmodel (it moves weirdly when looking up or down)
+    // - (improve Entity class (reduce amount of spaghetti))
     // - actual shooting and hit detection
 
     player = Player(glm::vec3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
@@ -50,9 +54,15 @@ void Game::Init() {
     glActiveTexture(GL_TEXTURE10);
     Content::Instance().GetTexture("noise")->Bind();
     prog.SetVec2("noiseResolution", glm::vec2(Content::Instance().GetTexture("noise")->width, Content::Instance().GetTexture("noise")->height));
+
+    ads = false;
 }
 
 void Game::Update(float deltaTime) {
+    if (ads) test.SetPosition(player.camera.position + 1.0f * player.camera.Direction() - 0.2f * player.camera.Up());
+    else     test.SetPosition(player.camera.position + 0.7f * player.camera.Right() + 1.4f * player.camera.Direction() - 0.4f * player.camera.Up());
+    test.SetOrientation(player.camera.orientation * glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
         std::cout << "player position: " << player.GetPosition().x << ", " << player.GetPosition().y << ", " << player.GetPosition().z << std::endl;
@@ -63,17 +73,27 @@ void Game::Update(float deltaTime) {
         std::cout << std::endl;
     }
 
+    ads = IsButtonDown(Mouse::Right);
+
     player.Update(deltaTime);
 }   
 
 void Game::Draw() {
     glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glStencilMask(0xFF);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     prog.SetMat4("view", player.camera.LookAt());
     prog.SetVec3("cameraPos", player.camera.position);
 
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+    glStencilMask(0xFF);
+
     test.Draw(prog);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
 
     for (auto it = world.begin(); it != world.end(); it++) {
         it->second.Draw(prog);

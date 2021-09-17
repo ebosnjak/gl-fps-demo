@@ -18,6 +18,7 @@
 class Game : public Application {
 public:
     Player player;
+    bool ads;
 
     Entity test;
 
