@@ -126,6 +126,7 @@ Box Entity::GetAABB() {
 void Entity::ComputeMatrix() {
     // add rotations
     modelMatrix = glm::translate(glm::mat4(1.0f), position) *
+                  glm::toMat4(orientation) * 
                   glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
 }
 
@@ -209,7 +210,7 @@ void Player::Update(float deltaTime) {
 
     orientation = glm::quat(glm::vec3(pitch, yaw, 0.0f));
     
-    glm::vec3 velocity;
+    glm::vec3 velocity = glm::vec3(0.0f);
     if (gameEngine->IsKeyDown(Keys::W)) {
         velocity += glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 3.0f;
     }
