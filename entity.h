@@ -15,6 +15,10 @@ protected:
     glm::quat orientation;
     float scale;
 
+    glm::vec3 lastPosition;
+    glm::vec3 nextPosition;
+    float timer, moveDuration;
+
     glm::vec3 up;
     glm::vec3 direction;
     glm::vec3 right;
@@ -33,7 +37,7 @@ public:
     bool isSolid;
     
     Entity();
-    Entity(Mesh* _mesh, glm::vec3 _position = glm::vec3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
+    Entity(Mesh* _mesh, glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);
@@ -41,8 +45,8 @@ public:
     Box GetAABB();
 
     glm::vec3 GetPosition();
-    void SetPosition(const glm::vec3& pos);
-    void Move(const glm::vec3& delta);
+    void SetPosition(const glm::vec3& pos, float duration = 0.0f);
+    void Move(const glm::vec3& delta, float duration = 0.0f);
 
     glm::quat GetOrientation();
     glm::vec3 GetOrientationEuler();
@@ -66,7 +70,7 @@ private:
 public:
     Camera camera;
 
-    Player(glm::vec3 _position = glm::vec3(), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
+    Player(glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);

@@ -4,11 +4,17 @@
 Game* Entity::gameEngine = nullptr;
 
 Entity::Entity() {
+    linearVelocity = glm::vec3(0.0f);
+
     scale = 1.0f;
     obeysGravity = false;
     onGround = false;
     isSolid = true;
     orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    moveDuration = 0.0f;
+    lastPosition = glm::vec3(0.0f);
+    nextPosition = glm::vec3(0.0f);
 }
 
 Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _scale) {
@@ -17,12 +23,30 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
     orientation = _orientation;
     scale = _scale;
 
+    moveDuration = 0.0f;
+    lastPosition = position;
+    nextPosition = position;
+
     obeysGravity = false;
     onGround = false;
     isSolid = true;
+
+    linearVelocity = glm::vec3(0.0f);
 }
 
 void Entity::Update(float deltaTime) {
+    if (moveDuration > 0.05f) {
+        timer += deltaTime;
+        if (timer > moveDuration) {
+            timer = 0.0f;
+            moveDuration = 0.0f;
+            position = nextPosition;
+        }
+        else {
+            position = glm::mix(lastPosition, nextPosition, timer / moveDuration);
+        }
+    }
+
     glm::vec3 nextPos = position + linearVelocity * deltaTime;
     if (isSolid) {
         for (auto it = gameEngine->world.begin(); it != gameEngine->world.end(); it++) {
@@ -114,7 +138,6 @@ void Entity::Draw(ShaderProgram& prog) {
 }
 
 Box Entity::GetAABB() {
-    // i'm not sure this will work with custom scaling
     if (mesh == nullptr) {
         return Box(customAABB.position * scale + position, customAABB.size * scale);
     }
@@ -124,7 +147,6 @@ Box Entity::GetAABB() {
 }
 
 void Entity::ComputeMatrix() {
-    // add rotations
     modelMatrix = glm::translate(glm::mat4(1.0f), position) *
                   glm::toMat4(orientation) * 
                   glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
@@ -134,14 +156,22 @@ glm::vec3 Entity::GetPosition() {
     return position;
 }
 
-void Entity::SetPosition(const glm::vec3& pos) {
-    position = pos;
+void Entity::SetPosition(const glm::vec3& pos, float duration) {
+    if (duration <= 0.0f) {
+        position = pos;
+    }
+    else {
+        lastPosition = position;
+        nextPosition = pos;
+        timer = 0.0f;
+        moveDuration = duration;
+    }
+
     ComputeMatrix();   
 }
 
-void Entity::Move(const glm::vec3& delta) {
-    position += delta;
-    ComputeMatrix();
+void Entity::Move(const glm::vec3& delta, float duration) {
+    SetPosition(position + delta, duration);
 }
 
 glm::quat Entity::GetOrientation() {
