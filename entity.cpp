@@ -150,7 +150,7 @@ glm::quat Entity::GetOrientation() {
 
 glm::vec3 Entity::GetOrientationEuler() {
     glm::vec3 tmp = glm::eulerAngles(orientation);
-    return glm::vec3(glm::degrees(tmp.x), glm::degrees(tmp.y), glm::degrees(tmp.z));
+    return glm::vec3(tmp.x, tmp.y, tmp.z);
 }
 
 void Entity::SetOrientation(const glm::quat& q) {
@@ -159,12 +159,12 @@ void Entity::SetOrientation(const glm::quat& q) {
 }
 
 void Entity::SetOrientation(const glm::vec3& v) {
-    orientation = glm::quat(glm::vec3(glm::radians(v.x), glm::radians(v.y), glm::radians(v.z)));
+    orientation = glm::quat(glm::vec3(v.x, v.y, v.z));
     ComputeMatrix();
 }
 
 void Entity::SetOrientation(const glm::vec3& axis, float angle) {
-    orientation = glm::angleAxis(glm::radians(angle), glm::vec3(axis.x, axis.y, axis.z));
+    orientation = glm::angleAxis(angle, glm::vec3(axis.x, axis.y, axis.z));
     ComputeMatrix();
 }
 
@@ -174,7 +174,7 @@ void Entity::Rotate(const glm::quat& rot) {
 }
 
 void Entity::Rotate(const glm::vec3& axis, float angle) {
-    orientation = glm::angleAxis(glm::radians(angle), glm::vec3(axis.x, axis.y, axis.z)) * orientation;
+    orientation = glm::angleAxis(angle, glm::vec3(axis.x, axis.y, axis.z)) * orientation;
     ComputeMatrix();
 }
 
