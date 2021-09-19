@@ -36,6 +36,8 @@ uniform Light light;
 
 uniform vec3 cameraPos;
 
+uniform bool isViewmodel;
+
 void main() {
     if (solidColor) {
         fragColor = vec4(color, 1.0);

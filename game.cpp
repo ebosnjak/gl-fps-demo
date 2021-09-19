@@ -56,13 +56,11 @@ void Game::Init() {
     prog.SetVec2("noiseResolution", glm::vec2(Content::Instance().GetTexture("noise")->width, Content::Instance().GetTexture("noise")->height));
 
     ads = false;
+    test.SetPosition(glm::vec3(0.7f, -0.4f, -1.4f));
+    test.SetOrientation(glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 }
 
 void Game::Update(float deltaTime) {
-    if (ads) test.SetPosition(player.camera.position + 1.0f * player.camera.Direction() - 0.2f * player.camera.Up());
-    else     test.SetPosition(player.camera.position + 0.7f * player.camera.Right() + 1.4f * player.camera.Direction() - 0.4f * player.camera.Up());
-    test.SetOrientation(player.camera.orientation * glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
         std::cout << "player position: " << player.GetPosition().x << ", " << player.GetPosition().y << ", " << player.GetPosition().z << std::endl;
@@ -73,7 +71,14 @@ void Game::Update(float deltaTime) {
         std::cout << std::endl;
     }
 
-    ads = IsButtonDown(Mouse::Right);
+    if (IsButtonPressed(Mouse::Right)) {
+        ads = true;
+        test.SetPosition(glm::vec3(0.0f, -0.2f, -1.0f));
+    }
+    else if (IsButtonReleased(Mouse::Right)) {
+        ads = false;
+        test.SetPosition(glm::vec3(0.7f, -0.4f, -1.4f));
+    }
 
     player.Update(deltaTime);
 }   
@@ -90,11 +95,14 @@ void Game::Draw() {
     glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
     glStencilMask(0xFF);
 
+    prog.SetInt("isViewmodel", 1);
+    prog.SetMat4("playerModel", player.GetModelMatrix());
     test.Draw(prog);
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
 
+    prog.SetInt("isViewmodel", 0);
     for (auto it = world.begin(); it != world.end(); it++) {
         it->second.Draw(prog);
         //DrawBox(prog, it->second.GetAABB());
