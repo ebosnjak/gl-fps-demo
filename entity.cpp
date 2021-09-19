@@ -155,22 +155,27 @@ glm::vec3 Entity::GetOrientationEuler() {
 
 void Entity::SetOrientation(const glm::quat& q) {
     orientation = q;
+    ComputeMatrix();
 }
 
 void Entity::SetOrientation(const glm::vec3& v) {
     orientation = glm::quat(glm::vec3(glm::radians(v.x), glm::radians(v.y), glm::radians(v.z)));
+    ComputeMatrix();
 }
 
 void Entity::SetOrientation(const glm::vec3& axis, float angle) {
     orientation = glm::angleAxis(glm::radians(angle), glm::vec3(axis.x, axis.y, axis.z));
+    ComputeMatrix();
 }
 
 void Entity::Rotate(const glm::quat& rot) {
     orientation = rot * orientation;
+    ComputeMatrix();
 }
 
 void Entity::Rotate(const glm::vec3& axis, float angle) {
     orientation = glm::angleAxis(glm::radians(angle), glm::vec3(axis.x, axis.y, axis.z)) * orientation;
+    ComputeMatrix();
 }
 
 float Entity::GetScale() {
@@ -180,6 +185,10 @@ float Entity::GetScale() {
 void Entity::SetScale(float sc) {
     scale = sc;
     ComputeMatrix();
+}
+
+glm::mat4 Entity::GetModelMatrix() {
+    return modelMatrix;
 }
 
 
@@ -199,8 +208,8 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
 
 void Player::Update(float deltaTime) {
     glm::vec2 mouseDelta = gameEngine->GetMouseDelta();
-    float deltaYaw = -mouseDelta.x / 1000.0f * 3.14159f;
-    float deltaPitch = -mouseDelta.y / 1000.0f * 3.14159f;
+    float deltaYaw = -mouseDelta.x / 2000.0f * 3.14159f;
+    float deltaPitch = -mouseDelta.y / 2000.0f * 3.14159f;
 
     yaw += deltaYaw;
     pitch += deltaPitch;

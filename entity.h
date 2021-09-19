@@ -54,6 +54,8 @@ public:
 
     float GetScale();
     void SetScale(float sc);
+
+    glm::mat4 GetModelMatrix();
 };
 
 class Player : public Entity {
