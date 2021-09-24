@@ -17,10 +17,6 @@ void Game::Init() {
 
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
 
-    test = Entity(Content::Instance().GetMesh("smg"));
-    test.SetPosition(glm::vec3(1.0f, 0.0f, -3.0f));
-    test.SetScale(0.2f);
-
     world["floor1"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor1"].SetPosition(glm::vec3(0.0f, -2.0f, 0.0f));
 
@@ -34,9 +30,7 @@ void Game::Init() {
     world["wall1"].SetPosition(glm::vec3(0.0f, 0.0f, -13.0f));
 
     // TODO: 
-    // - add interpolation to fix stuttery looking around
-    // - gun viewmodel (it moves weirdly when looking up or down)
-    // - (improve Entity class (reduce amount of spaghetti))
+    // - make a Weapon class and allow Players to have them
     // - actual shooting and hit detection
 
     player = Player(glm::vec3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
@@ -54,10 +48,6 @@ void Game::Init() {
     glActiveTexture(GL_TEXTURE10);
     Content::Instance().GetTexture("noise")->Bind();
     prog.SetVec2("noiseResolution", glm::vec2(Content::Instance().GetTexture("noise")->width, Content::Instance().GetTexture("noise")->height));
-
-    ads = false;
-    test.SetPosition(glm::vec3(0.7f, -0.4f, -1.4f));
-    test.SetOrientation(glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 }
 
 void Game::Update(float deltaTime) {
@@ -71,15 +61,6 @@ void Game::Update(float deltaTime) {
         std::cout << std::endl;
     }
 
-    if (IsButtonPressed(Mouse::Right)) {
-        ads = true;
-        test.SetPosition(glm::vec3(0.0f, -0.2f, -1.0f));
-    }
-    else if (IsButtonReleased(Mouse::Right)) {
-        ads = false;
-        test.SetPosition(glm::vec3(0.7f, -0.4f, -1.4f));
-    }
-
     player.Update(deltaTime);
 }   
 
@@ -91,18 +72,8 @@ void Game::Draw() {
     prog.SetMat4("view", player.camera.LookAt());
     prog.SetVec3("cameraPos", player.camera.position);
 
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
-    glStencilMask(0xFF);
+    player.Draw(prog);
 
-    prog.SetInt("isViewmodel", 1);
-    prog.SetMat4("playerModel", player.GetModelMatrix());
-    test.Draw(prog);
-
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-
-    prog.SetInt("isViewmodel", 0);
     for (auto it = world.begin(); it != world.end(); it++) {
         it->second.Draw(prog);
         //DrawBox(prog, it->second.GetAABB());

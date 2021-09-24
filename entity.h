@@ -7,6 +7,7 @@
 #include "camera.h"
 
 class Game;
+class Weapon;
 
 class Entity {
 protected:
@@ -69,8 +70,9 @@ private:
 
 public:
     Camera camera;
+    Weapon* test;
 
-    Player(glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
+    Player(glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);

@@ -9,6 +9,7 @@
 #include "content.h"
 #include "camera.h"
 #include "entity.h"
+#include "weapon.h"
 
 #include <iostream>
 #include <vector>
@@ -18,9 +19,6 @@
 class Game : public Application {
 public:
     Player player;
-    bool ads;
-
-    Entity test;
 
     std::unordered_map< std::string, Entity > world;
 

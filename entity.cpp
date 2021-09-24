@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "game.h"
+#include "weapon.h"
 
 Game* Entity::gameEngine = nullptr;
 
@@ -234,6 +235,9 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
     obeysGravity = true;
     pitchLimit = 87.0f * 3.14159f / 180.0f;
     yaw = 0.0f; pitch = 0.0f;
+
+    test = new Weapon_SMG(Content::Instance().GetMesh("smg"), glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    test->owner = this;
 }
 
 void Player::Update(float deltaTime) {
@@ -269,6 +273,13 @@ void Player::Update(float deltaTime) {
         }
     }
 
+    if (gameEngine->IsButtonPressed(Mouse::Right)) {
+        test->OnSecondaryFirePressed();
+    }
+    else if (gameEngine->IsButtonReleased(Mouse::Right)) {
+        test->OnSecondaryFireReleased();
+    }
+
     if (glm::length(velocity) > 3.0f) {
         velocity = glm::normalize(velocity) * 3.0f;
     }
@@ -290,10 +301,22 @@ void Player::Update(float deltaTime) {
     camera.orientation = orientation;
 
     camera.Update(deltaTime);
+    test->Update(deltaTime);
 
     Entity::Update(deltaTime);
 }
 
 void Player::Draw(ShaderProgram& prog) {
-    // do nothing
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+    glStencilMask(0xFF);
+
+    prog.SetInt("isViewmodel", 1);
+    prog.SetMat4("playerModel", GetModelMatrix());
+    test->Draw(prog);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+
+    prog.SetInt("isViewmodel", 0);
 }
