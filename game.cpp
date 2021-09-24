@@ -33,7 +33,11 @@ void Game::Init() {
     // - make a Weapon class and allow Players to have them
     // - actual shooting and hit detection
 
+    smg = Weapon_SMG(Content::Instance().GetMesh("smg"), glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+
     player = Player(glm::vec3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
+    player.currentWeapon = &smg;
+    player.currentWeapon->owner = &player;
 
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
     prog.SetMat4("proj", proj);

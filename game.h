@@ -20,6 +20,8 @@ class Game : public Application {
 public:
     Player player;
 
+    Weapon_SMG smg;
+
     std::unordered_map< std::string, Entity > world;
 
     Camera camera;
