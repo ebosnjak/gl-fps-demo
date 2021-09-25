@@ -5,6 +5,9 @@
 #include "mesh.h"
 #include "mathhelper.h"
 #include "camera.h"
+#include "animation.h"
+
+#include <queue>
 
 class Game;
 class Weapon;

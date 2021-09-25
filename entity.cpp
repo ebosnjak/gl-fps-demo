@@ -36,7 +36,7 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
 }
 
 void Entity::Update(float deltaTime) {
-    if (moveDuration > 0.05f) {
+    if (moveDuration > 0.001f) {
         timer += deltaTime;
         if (timer > moveDuration) {
             timer = 0.0f;
@@ -295,12 +295,32 @@ void Player::Update(float deltaTime) {
     camera.Update(deltaTime);
 
     if (currentWeapon != nullptr) {
+        if (gameEngine->IsButtonPressed(Mouse::Left)) {
+            currentWeapon->OnPrimaryFirePressed();
+        }
+        if (gameEngine->IsButtonDown(Mouse::Left)) {
+            currentWeapon->OnPrimaryFireDown();
+        }
+        if (gameEngine->IsButtonReleased(Mouse::Left)) {
+            currentWeapon->OnPrimaryFireReleased();
+        }
+        if (gameEngine->IsButtonUp(Mouse::Left)) {
+            currentWeapon->OnPrimaryFireUp();
+        }
+
         if (gameEngine->IsButtonPressed(Mouse::Right)) {
             currentWeapon->OnSecondaryFirePressed();
         }
-        else if (gameEngine->IsButtonReleased(Mouse::Right)) {
+        if (gameEngine->IsButtonDown(Mouse::Right)) {
+            currentWeapon->OnSecondaryFireDown();
+        }
+        if (gameEngine->IsButtonReleased(Mouse::Right)) {
             currentWeapon->OnSecondaryFireReleased();
         }
+        if (gameEngine->IsButtonUp(Mouse::Right)) {
+            currentWeapon->OnSecondaryFireUp();
+        }
+
         currentWeapon->Update(deltaTime);
     }
 
