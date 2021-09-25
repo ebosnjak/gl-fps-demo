@@ -43,10 +43,11 @@ private:
     Animation animADS;
 
     glm::vec3 posHip, posADS;
-
     glm::quat defaultOrientation;
 
 public:
+    bool ads;
+
     Weapon_SMG();
     Weapon_SMG(Mesh* _mesh, glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
 
