@@ -127,6 +127,7 @@ enum class Keys {
 
 class Application {
 private:
+    bool isFocused;
     bool isCursorLocked;
 
 public:
@@ -169,6 +170,8 @@ public:
     glm::vec2 GetMouseDelta();
 
     void SetCursorLocked(bool locked);
+
+    bool IsWindowFocused();
 };
 
 #endif

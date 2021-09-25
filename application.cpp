@@ -12,6 +12,7 @@ Application::Application(int w, int h) {
     windowHeight = h;
 
     isCursorLocked = false;
+    isFocused = true;
 
     dpy = XOpenDisplay(NULL);
     
@@ -83,7 +84,7 @@ Application::Application(int w, int h) {
         return;
     }
 
-    long eventMask = KeyPressMask | KeyReleaseMask | KeymapStateMask | StructureNotifyMask |
+    long eventMask = KeyPressMask | KeyReleaseMask | KeymapStateMask | StructureNotifyMask | FocusChangeMask |
                     PointerMotionMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask;
     
     XSelectInput(dpy, wnd, eventMask);
@@ -209,6 +210,12 @@ void Application::Run() {
                     mouseState &= ~(1 << 2);
                 }
             }
+            else if (evt.type == FocusIn) {
+                isFocused = true;
+            }
+            else if (evt.type == FocusOut) {
+                isFocused = false;
+            }
         }
 
         auto currentT = clock.now();
@@ -277,6 +284,8 @@ glm::vec2 Application::GetMouseDelta() {
 }
 
 void Application::SetCursorLocked(bool locked) {
+    if (isCursorLocked == locked) return;
+    
     isCursorLocked = locked;
     if (isCursorLocked) {
         XFixesHideCursor(dpy, DefaultRootWindow(dpy));
@@ -284,4 +293,8 @@ void Application::SetCursorLocked(bool locked) {
     else {
         XFixesShowCursor(dpy, DefaultRootWindow(dpy));
     }
+}
+
+bool Application::IsWindowFocused() {
+    return isFocused;
 }
