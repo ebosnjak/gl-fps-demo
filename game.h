@@ -10,9 +10,12 @@
 #include "camera.h"
 #include "entity.h"
 #include "weapon.h"
+#include "projectile.h"
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
+#include <list>
 
 #include <iomanip>
 
@@ -24,6 +27,7 @@ public:
 
     std::unordered_map< std::string, Entity > world;
     std::unordered_map< std::string, Entity > enemies;
+    std::list< Projectile > projectiles;
 
     Camera camera;
     ShaderProgram prog;

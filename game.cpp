@@ -87,10 +87,31 @@ void Game::Update(float deltaTime) {
         std::cout << std::endl;
     }
 
+    if (IsKeyPressed(Keys::L)) {
+        std::string id = "test" + std::to_string(enemies.size() + 1);
+        enemies[id] = Entity(Content::Instance().GetMesh("test"));
+        enemies[id].SetPosition(player.camera.position + 7.0f * glm::vec3(player.camera.Direction().x, 0.7f, player.camera.Direction().z));
+        enemies[id].obeysGravity = true;
+        enemies[id].type = EntityType::Enemy;
+    }
+
     player.Update(deltaTime);
 
-    for (auto it = enemies.begin(); it != enemies.end(); it++) {
-        it->second.Update(deltaTime);
+    for (auto& x : projectiles) {
+        x.Update(deltaTime);
+    }
+
+    for (auto it = projectiles.begin(); it != projectiles.end(); ) {
+        if (!it->isAlive) {
+            projectiles.erase(it++);
+        }
+        else {
+            ++it;
+        }
+    }
+
+    for (auto& x : enemies) {
+        x.second.Update(deltaTime);
     }
 
     for (auto it = enemies.begin(); it != enemies.end(); ) {
@@ -113,14 +134,18 @@ void Game::Draw() {
 
     player.Draw(prog);
 
-    for (auto it = world.begin(); it != world.end(); it++) {
-        it->second.Draw(prog);
+    for (auto& x : world) {
+        x.second.Draw(prog);
         //DrawBox(prog, it->second.GetAABB(), glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
-    for (auto it = enemies.begin(); it != enemies.end(); it++) {
-        it->second.Draw(prog);
+    for (auto& x : enemies) {
+        x.second.Draw(prog);
         //DrawBox(prog, it->second.GetAABB(), glm::vec3(0.0f, 0.0f, 1.0f));
+    }
+
+    for (auto& x : projectiles) {
+        x.Draw(prog);
     }
 }
 
