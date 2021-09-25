@@ -29,6 +29,10 @@ void Content::Load() {
 
     meshes["floor"] = Mesh("assets/floor.obj");
     meshes["wall"] = Mesh("assets/wall.obj");
+
+    meshes["test"] = Mesh("assets/test.obj");
+    meshes["test"].ignoreMaterials = true;
+    meshes["test"].color = glm::vec3(0.92f, 0.62f, 0.21f);
 }
 
 Texture2D* Content::GetTexture(const std::string& name) {
