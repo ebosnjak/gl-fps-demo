@@ -76,6 +76,11 @@ void Game::Update(float deltaTime) {
         SetCursorLocked(true);
     }
 
+    if (player.GetPosition().y < -25.0f) {
+        player.SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+        player.linearVelocity = glm::vec3(0.0f);
+    }
+
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
         std::cout << "gun position: " << player.currentWeapon->GetPosition().x << ", " << player.currentWeapon->GetPosition().y << ", " << player.currentWeapon->GetPosition().z << std::endl;
