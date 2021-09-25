@@ -45,7 +45,9 @@ void Game::Init() {
     enemies["test3"].type = EntityType::Enemy;
 
     // TODO: 
-    // - actual shooting and hit detection
+    // - healthbars for enemies
+    // - sprinting
+    // - meleeing with the gun butt
 
     smg = Weapon_SMG(Content::Instance().GetMesh("smg"), glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
 
