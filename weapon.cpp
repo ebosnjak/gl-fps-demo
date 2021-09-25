@@ -72,7 +72,7 @@ void Weapon_SMG::Update(float deltaTime) {
     if (isReloading) {
         if (!anim.empty()) {
             anim.front().Update(deltaTime);
-            position = posHip + anim.front().position;
+            position = anim.front().position;
             orientation = anim.front().quat * defaultOrientation;
 
             if (anim.front().finished) {
@@ -82,6 +82,9 @@ void Weapon_SMG::Update(float deltaTime) {
 
         reloadingTimer += deltaTime;
         if (reloadingTimer >= reloadTime) {
+            position = posHip;
+            orientation = defaultOrientation;
+
             isReloading = false;
             reloadingTimer = 0.0f;
             ammo = maxAmmo;
@@ -214,7 +217,6 @@ void Weapon_SMG::OnReload() {
     }
     animADS = Animation();
 
-    ads = false;
     isReloading = true;
     reloadingTimer = 0.0f;
 
@@ -222,22 +224,23 @@ void Weapon_SMG::OnReload() {
         position = posHip;
         defaultPosition = posHip;
 
-        anim.push(Animation(0.3f * reloadTime, glm::vec3(0.0f), glm::vec3(-0.7f, -0.4f, 0.0f), 
+        anim.push(Animation(0.3f * reloadTime, posHip, posHip + glm::vec3(-0.7f, -0.4f, 0.0f), 
                             glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
-        anim.push(Animation(0.4f * reloadTime, glm::vec3(-0.7f, -0.4f, 0.0f), glm::vec3(-0.7f, -0.4f, 0.0f), 
+        anim.push(Animation(0.4f * reloadTime, posHip + glm::vec3(-0.7f, -0.4f, 0.0f), posHip + glm::vec3(-0.7f, -0.4f, 0.0f), 
                             glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
-        anim.push(Animation(0.3f * reloadTime - 0.01f, glm::vec3(-0.7f, -0.4f, 0.0f), glm::vec3(0.0f), 
+        anim.push(Animation(0.3f * reloadTime, posHip + glm::vec3(-0.7f, -0.4f, 0.0f), posHip, 
                             glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
     }
     else {
+        ads = false;
         position = posHip;
         defaultPosition = posHip;
 
-        anim.push(Animation(0.3f * reloadTime, glm::vec3(0.0f), glm::vec3(0.0f, -0.6f, -0.4f), 
+        anim.push(Animation(0.3f * reloadTime, posADS, posADS + glm::vec3(0.0f, -0.6f, -0.4f), 
                             glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
-        anim.push(Animation(0.4f * reloadTime, glm::vec3(0.0f, -0.6f, -0.4f), glm::vec3(0.0f, -0.6f, -0.4f), 
+        anim.push(Animation(0.4f * reloadTime, posADS + glm::vec3(0.0f, -0.6f, -0.4f), posADS + glm::vec3(0.0f, -0.6f, -0.4f), 
                             glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
-        anim.push(Animation(0.3f * reloadTime - 0.01f, glm::vec3(-0.7f, -0.4f, 0.0f), glm::vec3(0.0f), 
+        anim.push(Animation(0.3f * reloadTime, posADS + glm::vec3(0.0f, -0.6f, -0.4f), posHip, 
                             glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
     }
 }
