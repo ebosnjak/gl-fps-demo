@@ -321,6 +321,10 @@ void Player::Update(float deltaTime) {
             currentWeapon->OnSecondaryFireUp();
         }
 
+        if (gameEngine->IsKeyPressed(Keys::R)) {
+            currentWeapon->OnReload();
+        }
+
         currentWeapon->Update(deltaTime);
     }
 
