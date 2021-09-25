@@ -1,4 +1,5 @@
 #include "weapon.h"
+#include "game.h"
 
 Weapon::Weapon() {
     mesh = nullptr;
@@ -52,7 +53,7 @@ Weapon_SMG::Weapon_SMG(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation,
 
     shootingTimer = 0.0f;
     reloadingTimer = 0.0f;
-    reloadTime = 2.0f;
+    reloadTime = 1.4f;
     rof = 10.0f;
 
     ammo = 25;
@@ -142,6 +143,7 @@ void Weapon_SMG::OnPrimaryFireDown() {
         isReloading = false;
         while (!anim.empty()) {
             anim.pop();
+        while (!anim.empty()) {
         }
 
         position = posHip;
@@ -151,7 +153,9 @@ void Weapon_SMG::OnPrimaryFireDown() {
     }
 
     if (shootingTimer >= 1.0f / rof) {
-        std::cout << "boom " << std::endl;
+        glm::vec3 dir = owner->camera.Direction();
+        glm::vec3 pos = owner->camera.position + 2.0f * owner->camera.Direction();
+        gameEngine->projectiles.push_back(Projectile(pos, 50.0f, dir));
         --ammo;
         std::cout << "ammo " << ammo << std::endl;
         anim.push(Animation(0.05f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.08f),

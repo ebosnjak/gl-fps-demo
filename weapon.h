@@ -2,6 +2,9 @@
 #define WEAPON_H
 
 #include "entity.h"
+#include "projectile.h"
+
+class Player;
 
 class Weapon : public Entity {
 protected:
