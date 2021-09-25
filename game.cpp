@@ -29,8 +29,22 @@ void Game::Init() {
     world["wall1"] = Entity(Content::Instance().GetMesh("wall"));
     world["wall1"].SetPosition(glm::vec3(0.0f, 0.0f, -13.0f));
 
+    enemies["test1"] = Entity(Content::Instance().GetMesh("test"));
+    enemies["test1"].SetPosition(glm::vec3(17.0f, 7.0f, 0.0f));
+    enemies["test1"].obeysGravity = true;
+    enemies["test1"].type = EntityType::Enemy;
+
+    enemies["test2"] = Entity(Content::Instance().GetMesh("test"));
+    enemies["test2"].SetPosition(glm::vec3(27.0f, 10.0f, 5.0f));
+    enemies["test2"].obeysGravity = true;
+    enemies["test2"].type = EntityType::Enemy;
+
+    enemies["test3"] = Entity(Content::Instance().GetMesh("test"));
+    enemies["test3"].SetPosition(glm::vec3(20.0f, 15.0f, -4.0f));
+    enemies["test3"].obeysGravity = true;
+    enemies["test3"].type = EntityType::Enemy;
+
     // TODO: 
-    // - make a Weapon class and allow Players to have them
     // - actual shooting and hit detection
 
     smg = Weapon_SMG(Content::Instance().GetMesh("smg"), glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
@@ -55,8 +69,16 @@ void Game::Init() {
 }
 
 void Game::Update(float deltaTime) {
+    if (!IsWindowFocused()) {
+        SetCursorLocked(false);
+    }
+    else {
+        SetCursorLocked(true);
+    }
+
     if (IsKeyPressed(Keys::X)) {
         std::cout << std::fixed << std::setprecision(1);
+        std::cout << "gun position: " << player.currentWeapon->GetPosition().x << ", " << player.currentWeapon->GetPosition().y << ", " << player.currentWeapon->GetPosition().z << std::endl;
         std::cout << "player position: " << player.GetPosition().x << ", " << player.GetPosition().y << ", " << player.GetPosition().z << std::endl;
         std::cout << "player rotation: " << player.GetOrientationEuler().x << ", " << player.GetOrientationEuler().y << ", " << player.GetOrientationEuler().z << std::endl;
         std::cout << "player velocity: " << player.linearVelocity.x << ", " << player.linearVelocity.y << ", " << player.linearVelocity.z << std::endl;
@@ -66,6 +88,19 @@ void Game::Update(float deltaTime) {
     }
 
     player.Update(deltaTime);
+
+    for (auto it = enemies.begin(); it != enemies.end(); it++) {
+        it->second.Update(deltaTime);
+    }
+
+    for (auto it = enemies.begin(); it != enemies.end(); ) {
+        if (!it->second.isAlive) {
+            enemies.erase(it++);
+        }
+        else {
+            ++it;
+        }
+    }
 }   
 
 void Game::Draw() {
@@ -80,7 +115,12 @@ void Game::Draw() {
 
     for (auto it = world.begin(); it != world.end(); it++) {
         it->second.Draw(prog);
-        //DrawBox(prog, it->second.GetAABB());
+        //DrawBox(prog, it->second.GetAABB(), glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+
+    for (auto it = enemies.begin(); it != enemies.end(); it++) {
+        it->second.Draw(prog);
+        //DrawBox(prog, it->second.GetAABB(), glm::vec3(0.0f, 0.0f, 1.0f));
     }
 }
 
@@ -88,9 +128,12 @@ void Game::Cleanup() {
     
 }
 
-void Game::DrawBox(ShaderProgram& p, const Box& b) {
+void Game::DrawBox(ShaderProgram& p, const Box& b, glm::vec3 c) {
     p.SetMat4("model", glm::translate(glm::mat4(1.0f), b.position + b.size * 0.5f) * glm::scale(glm::mat4(1.0f), b.size));
+    glm::vec3 tmp = Content::Instance().GetMesh("unitcube")->color;
+    Content::Instance().GetMesh("unitcube")->color = c;
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     Content::Instance().GetMesh("unitcube")->Draw(p);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    Content::Instance().GetMesh("unitcube")->color = tmp;
 }

@@ -23,6 +23,7 @@ public:
     Weapon_SMG smg;
 
     std::unordered_map< std::string, Entity > world;
+    std::unordered_map< std::string, Entity > enemies;
 
     Camera camera;
     ShaderProgram prog;
@@ -34,7 +35,7 @@ public:
     void Draw();
     void Cleanup();
 
-    static void DrawBox(ShaderProgram& p, const Box& b);
+    static void DrawBox(ShaderProgram& p, const Box& b, glm::vec3 c);
 };
 
 #endif
