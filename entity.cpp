@@ -7,6 +7,9 @@ Game* Entity::gameEngine = nullptr;
 Entity::Entity() {
     linearVelocity = glm::vec3(0.0f);
 
+    maxHealth = 100;
+    health = maxHealth;
+
     scale = 1.0f;
     obeysGravity = false;
     onGround = false;
@@ -16,6 +19,9 @@ Entity::Entity() {
     moveDuration = 0.0f;
     lastPosition = glm::vec3(0.0f);
     nextPosition = glm::vec3(0.0f);
+
+    isAlive = true;
+    type = EntityType::Generic;
 }
 
 Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _scale) {
@@ -23,6 +29,9 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
     position = _position;
     orientation = _orientation;
     scale = _scale;
+
+    maxHealth = 100;
+    health = maxHealth;
 
     moveDuration = 0.0f;
     lastPosition = position;
@@ -33,9 +42,20 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
     isSolid = true;
 
     linearVelocity = glm::vec3(0.0f);
+
+    isAlive = true;
+    type = EntityType::Generic;
 }
 
 void Entity::Update(float deltaTime) {
+    if (!isAlive) {
+        return;
+    }
+
+    if (health <= 0) {
+        isAlive = false;
+    }
+
     if (moveDuration > 0.001f) {
         timer += deltaTime;
         if (timer > moveDuration) {
@@ -45,6 +65,15 @@ void Entity::Update(float deltaTime) {
         }
         else {
             position = glm::mix(lastPosition, nextPosition, timer / moveDuration);
+        }
+    }
+
+    if (obeysGravity) {
+        if (!onGround) {
+            linearVelocity.y -= 9.81f * deltaTime;
+        }
+        else {
+            linearVelocity.y = 0.0f;
         }
     }
 
@@ -133,6 +162,10 @@ void Entity::Update(float deltaTime) {
 }
 
 void Entity::Draw(ShaderProgram& prog) {
+    if (!isAlive) {
+        return;
+    }
+
     prog.Use();
     prog.SetMat4("model", modelMatrix);
     mesh->Draw(prog);
@@ -237,6 +270,8 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
     yaw = 0.0f; pitch = 0.0f;
 
     currentWeapon = nullptr;
+
+    type = EntityType::Player;
 }
 
 void Player::Update(float deltaTime) {
@@ -277,14 +312,6 @@ void Player::Update(float deltaTime) {
     }
 
     linearVelocity.x = velocity.x;
-
-    if (!onGround) {
-        linearVelocity.y -= 9.81f * deltaTime;
-    }
-    else {
-        linearVelocity.y = 0.0f;
-    }
-
     linearVelocity.z = velocity.z;
 
     camera.position = position;

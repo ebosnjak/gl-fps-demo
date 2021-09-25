@@ -12,6 +12,13 @@
 class Game;
 class Weapon;
 
+enum class EntityType {
+    Generic,
+    Player,
+    Enemy,
+    Projectile
+};
+
 class Entity {
 protected:
     glm::mat4 modelMatrix;
@@ -39,6 +46,9 @@ public:
     bool obeysGravity;
     bool onGround;
     bool isSolid;
+    bool isAlive;
+    int health, maxHealth;
+    EntityType type;
     
     Entity();
     Entity(Mesh* _mesh, glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)), float _scale = 1.0f);
