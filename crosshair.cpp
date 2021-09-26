@@ -20,6 +20,7 @@ void Crosshair::Draw(ShaderProgram& prog) {
     prog.SetInt("tex", 0);
     glActiveTexture(GL_TEXTURE0);
     texture->Bind();
-    prog.SetMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.05f, 0.05f, 1.0f)));
-    Content::Instance().GetMesh("rectangle")->Draw(prog);
+    prog.SetMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3((float)gameEngine->windowWidth / 2.0f - 20.0f, (float)gameEngine->windowHeight / 2.0f - 20.0f, 1.0f)) *
+                          glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 40.0f, 1.0f)));
+    Content::Instance().GetMesh("rectangle_topleft")->Draw(prog);
 }

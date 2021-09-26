@@ -7,6 +7,7 @@ Game::Game(int w, int h) : Application(w, h) {
 void Game::Init() {
     Entity::gameEngine = this;
     Healthbar::gameEngine = this;
+    Crosshair::gameEngine = this;
 
     srand(time(0));
 
@@ -75,7 +76,9 @@ void Game::Init() {
 
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
     prog.SetMat4("proj", proj);
-    prog2D.SetMat4("proj", proj);
+
+    glm::mat4 proj2D = glm::ortho(0.0f, (float)windowWidth, (float)windowHeight, 0.0f, -1.0f, 1.0f);
+    prog2D.SetMat4("proj", proj2D);
 
     prog.SetVec4("light.vector", glm::vec4(-1.0f, -5.0f, -2.0f, 0.0f));
     //prog.SetVec4("light.vector", Vector4(3.0f, 2.0f, 4.0f, 1.0f)); // for point light

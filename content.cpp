@@ -27,6 +27,15 @@ void Content::Load() {
                                 { GL_TEXTURE_WRAP_T, GL_REPEAT }
                             });
 
+    textures["fontsheet"] = Texture2D(
+                            "assets/font.png",
+                            {
+                                { GL_TEXTURE_MIN_FILTER, GL_NEAREST },
+                                { GL_TEXTURE_MAG_FILTER, GL_NEAREST },
+                                { GL_TEXTURE_WRAP_S, GL_REPEAT },
+                                { GL_TEXTURE_WRAP_T, GL_REPEAT }
+                            });
+
     // meshes["backpack"] = Mesh("assets/backpack/backpack.obj");
 
     //meshes["shotgun"] = Mesh("assets/shotgun_tri.obj");
@@ -53,6 +62,17 @@ void Content::Load() {
     meshes["rectangle"] = Mesh(rectVertices, { }, { 0, 1, 2, 2, 3, 0 });
     meshes["rectangle"].ignoreMaterials = true;
     meshes["rectangle"].color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    rectVertices = {
+        { glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f) },
+        { glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f) },
+        { glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f) },
+        { glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f) }
+    };
+
+    meshes["rectangle_topleft"] = Mesh(rectVertices, { }, { 0, 1, 2, 2, 3, 0 });
+    meshes["rectangle_topleft"].ignoreMaterials = true;
+    meshes["rectangle_topleft"].color = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 Texture2D* Content::GetTexture(const std::string& name) {
