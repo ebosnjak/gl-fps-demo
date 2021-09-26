@@ -1,4 +1,7 @@
 #include "crosshair.h"
+#include "game.h"
+
+Game* Crosshair::gameEngine = nullptr;
 
 Crosshair::Crosshair() {
     texture = nullptr;

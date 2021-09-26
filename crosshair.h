@@ -5,7 +5,11 @@
 #include "texture2d.h"
 #include "content.h"
 
+class Game;
+
 struct Crosshair {
+    static Game* gameEngine;
+    
     Texture2D* texture;
 
     Crosshair();
