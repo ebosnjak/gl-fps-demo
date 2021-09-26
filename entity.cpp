@@ -22,6 +22,9 @@ Entity::Entity() {
 
     isAlive = true;
     type = EntityType::Generic;
+
+    useHpBar = false;
+    hpBar = Healthbar();
 }
 
 Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _scale) {
@@ -45,6 +48,9 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
 
     isAlive = true;
     type = EntityType::Generic;
+
+    useHpBar = false;
+    hpBar = Healthbar();
 }
 
 void Entity::Update(float deltaTime) {
@@ -169,6 +175,11 @@ void Entity::Draw(ShaderProgram& prog) {
     prog.Use();
     prog.SetMat4("model", modelMatrix);
     mesh->Draw(prog);
+
+    if (useHpBar) {
+        hpBar.owner = this;
+        hpBar.Draw(prog);
+    }
 }
 
 Box Entity::GetAABB() {

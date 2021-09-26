@@ -6,6 +6,7 @@
 #include "mathhelper.h"
 #include "camera.h"
 #include "animation.h"
+#include "healthbar.h"
 
 #include <queue>
 
@@ -47,6 +48,8 @@ public:
     bool onGround;
     bool isSolid;
     bool isAlive;
+    bool useHpBar;
+    Healthbar hpBar;
     int health, maxHealth;
     EntityType type;
     
