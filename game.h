@@ -29,6 +29,8 @@ public:
     std::unordered_map< std::string, Entity > enemies;
     std::list< Projectile > projectiles;
 
+    int cnt;
+
     Camera camera;
     ShaderProgram prog;
 

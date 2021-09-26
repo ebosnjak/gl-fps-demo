@@ -6,6 +6,7 @@ Game::Game(int w, int h) : Application(w, h) {
 
 void Game::Init() {
     Entity::gameEngine = this;
+    Healthbar::gameEngine = this;
 
     Content::Instance().Load();
 
@@ -33,16 +34,24 @@ void Game::Init() {
     enemies["test1"].SetPosition(glm::vec3(17.0f, 7.0f, 0.0f));
     enemies["test1"].obeysGravity = true;
     enemies["test1"].type = EntityType::Enemy;
+    enemies["test1"].useHpBar = true;
+    enemies["test1"].hpBar.size.x = 2.4f;
 
     enemies["test2"] = Entity(Content::Instance().GetMesh("test"));
     enemies["test2"].SetPosition(glm::vec3(27.0f, 10.0f, 5.0f));
     enemies["test2"].obeysGravity = true;
     enemies["test2"].type = EntityType::Enemy;
+    enemies["test2"].useHpBar = true;
+    enemies["test2"].hpBar.size.x = 2.4f;
 
     enemies["test3"] = Entity(Content::Instance().GetMesh("test"));
     enemies["test3"].SetPosition(glm::vec3(20.0f, 15.0f, -4.0f));
     enemies["test3"].obeysGravity = true;
     enemies["test3"].type = EntityType::Enemy;
+    enemies["test3"].useHpBar = true;
+    enemies["test3"].hpBar.size.x = 2.4f;
+
+    cnt = 4;
 
     // TODO: 
     // - healthbars for enemies
@@ -95,11 +104,13 @@ void Game::Update(float deltaTime) {
     }
 
     if (IsKeyPressed(Keys::L)) {
-        std::string id = "test" + std::to_string(enemies.size() + 1);
+        std::string id = "test" + std::to_string(cnt++);
         enemies[id] = Entity(Content::Instance().GetMesh("test"));
-        enemies[id].SetPosition(player.camera.position + 7.0f * glm::vec3(player.camera.Direction().x, 0.7f, player.camera.Direction().z));
+        enemies[id].SetPosition(player.camera.position + 10.0f * glm::vec3(player.camera.Direction().x, 0.5f, player.camera.Direction().z));
         enemies[id].obeysGravity = true;
         enemies[id].type = EntityType::Enemy;
+        enemies[id].useHpBar = true;
+        enemies[id].hpBar.size.x = 2.4f;
     }
 
     player.Update(deltaTime);
