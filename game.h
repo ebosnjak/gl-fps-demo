@@ -12,6 +12,7 @@
 #include "weapon.h"
 #include "projectile.h"
 #include "crosshair.h"
+#include "spritefont.h"
 
 #include <iostream>
 #include <vector>
@@ -28,6 +29,8 @@ public:
     Player player;
 
     Weapon_SMG smg;
+
+    SpriteFont font;
 
     std::unordered_map< std::string, Entity > world;
     std::unordered_map< std::string, Entity > enemies;

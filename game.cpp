@@ -61,6 +61,8 @@ void Game::Init() {
 
     cnt = 4;
 
+    font = SpriteFont(Content::Instance().GetTexture("fontsheet"));
+
     // TODO: 
     // - ui elements (crosshair, ammo counter)
     // - hipfire inaccuracy
@@ -162,6 +164,14 @@ void Game::Draw() {
 
     prog.SetMat4("view", player.camera.LookAt());
     prog.SetVec3("cameraPos", player.camera.position);
+
+    // font.DrawString(prog2D, "the quick brown fox", glm::vec2(0.0f, 0.0f), glm::vec2(0.4f));
+    // font.DrawString(prog2D, "jumps over a lazy dog", glm::vec2(0.0f, 100.0f), glm::vec2(0.4f));
+    // font.DrawString(prog2D, "THE QUICK BROWN FOX", glm::vec2(0.0f, 200.0f), glm::vec2(0.4f));
+    // font.DrawString(prog2D, "JUMPS OVER A LAZY DOG", glm::vec2(0.0f, 300.0f), glm::vec2(0.4f));
+
+    std::string str = "Ammo: " + std::to_string(player.currentWeapon->ammo) + "/" + std::to_string(player.currentWeapon->maxAmmo);
+    font.DrawString(prog2D, str, glm::vec2(10.0f, (float)windowHeight - 70.0f), glm::vec2(0.7f, 0.7f), glm::vec3(0.0f, 0.5f, 1.0f));
 
     player.Draw(prog, prog2D);
 
