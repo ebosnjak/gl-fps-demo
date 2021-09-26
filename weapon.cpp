@@ -76,8 +76,6 @@ Weapon_SMG::Weapon_SMG(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation,
 }
 
 void Weapon_SMG::Update(float deltaTime) {
-    ads = (defaultPosition == posADS);
-
     if (isReloading) {
         if (!anim.empty()) {
             anim.front().Update(deltaTime);
@@ -93,6 +91,7 @@ void Weapon_SMG::Update(float deltaTime) {
         if (reloadingTimer >= reloadTime) {
             position = posHip;
             orientation = defaultOrientation;
+            ads = false;
 
             isReloading = false;
             reloadingTimer = 0.0f;
@@ -106,6 +105,10 @@ void Weapon_SMG::Update(float deltaTime) {
         if (animADS.started && !animADS.finished) {
             animADS.Update(deltaTime);
             defaultPosition = animADS.position;
+
+            if (animADS.finished && defaultPosition == posADS) {
+                ads = true;
+            }
         }
 
         if (!anim.empty() && isFiring) {
@@ -206,7 +209,7 @@ void Weapon_SMG::OnSecondaryFirePressed() {
         return;
     }
 
-    animADS = Animation(0.15f, posHip, posADS);
+    animADS = Animation(0.15f, defaultPosition, posADS);
 }
 
 void Weapon_SMG::OnSecondaryFireDown() {
@@ -214,11 +217,12 @@ void Weapon_SMG::OnSecondaryFireDown() {
 }
 
 void Weapon_SMG::OnSecondaryFireReleased() {
-    if (isReloading || !ads) {
+    if (isReloading) {
         return;
     }
 
-    animADS = Animation(0.15f, posADS, posHip);
+    ads = false;
+    animADS = Animation(0.15f, defaultPosition, posHip);
 }
 
 void Weapon_SMG::OnSecondaryFireUp() {
