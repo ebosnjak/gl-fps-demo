@@ -17,7 +17,8 @@ enum class EntityType {
     Generic,
     Player,
     Enemy,
-    Projectile
+    Projectile,
+    World
 };
 
 class Entity {

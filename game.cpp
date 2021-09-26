@@ -20,15 +20,19 @@ void Game::Init() {
 
     world["floor1"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor1"].SetPosition(glm::vec3(0.0f, -2.0f, 0.0f));
+    world["floor1"].type = EntityType::World;
 
     world["floor2"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor2"].SetPosition(glm::vec3(25.0f, -1.0f, 0.0f));
+    world["floor2"].type = EntityType::World;
 
     world["floor3"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor3"].SetPosition(glm::vec3(50.0f, 0.0f, 0.0f));
+    world["floor3"].type = EntityType::World;
 
     world["wall1"] = Entity(Content::Instance().GetMesh("wall"));
     world["wall1"].SetPosition(glm::vec3(0.0f, 0.0f, -13.0f));
+    world["wall1"].type = EntityType::World;
 
     enemies["test1"] = Entity(Content::Instance().GetMesh("test"));
     enemies["test1"].SetPosition(glm::vec3(17.0f, 7.0f, 0.0f));
@@ -54,7 +58,6 @@ void Game::Init() {
     cnt = 4;
 
     // TODO: 
-    // - healthbars for enemies
     // - sprinting
     // - meleeing with the gun butt
 

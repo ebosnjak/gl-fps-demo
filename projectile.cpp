@@ -46,6 +46,12 @@ void Projectile::Update(float deltaTime) {
         isAlive = false;
     }
 
+    for (auto it = gameEngine->world.begin(); it != gameEngine->world.end(); it++) {
+        if (Box::CheckAABB(GetAABB(), it->second.GetAABB())) {
+            OnHit(&(it->second));
+        }
+    }
+
     for (auto it = gameEngine->enemies.begin(); it != gameEngine->enemies.end(); it++) {
         if (Box::CheckAABB(GetAABB(), it->second.GetAABB())) {
             OnHit(&(it->second));
@@ -61,7 +67,12 @@ void Projectile::Draw(ShaderProgram& prog) {
 }
 
 void Projectile::OnHit(Entity* target) {
-    target->health -= damage;
-    isAlive = false;
-    std::cout << "hit" << std::endl;
+    if (target->type == EntityType::Enemy) {
+        target->health -= damage;
+        isAlive = false;
+        std::cout << "hit" << std::endl;
+    }
+    else if (target->type == EntityType::World) {
+        isAlive = false;
+    }
 }
