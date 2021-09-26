@@ -33,6 +33,17 @@ void Content::Load() {
     meshes["test"] = Mesh("assets/test.obj");
     meshes["test"].ignoreMaterials = true;
     meshes["test"].color = glm::vec3(0.92f, 0.62f, 0.21f);
+
+    std::vector< VertexData > rectVertices = {
+        { glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f) },
+        { glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f) },
+        { glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f) },
+        { glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f) }
+    };
+
+    meshes["rectangle"] = Mesh(rectVertices, { }, { 0, 1, 2, 2, 3, 0 });
+    meshes["rectangle"].ignoreMaterials = true;
+    meshes["rectangle"].color = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 Texture2D* Content::GetTexture(const std::string& name) {
