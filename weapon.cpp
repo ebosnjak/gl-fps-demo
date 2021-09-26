@@ -29,6 +29,9 @@ Weapon::Weapon() {
     isReloading = false;
 
     defaultPosition = glm::vec3(0.0f);
+
+    ads = false;
+    crosshair = Crosshair();
 }
 
 Weapon_SMG::Weapon_SMG() {
@@ -67,9 +70,14 @@ Weapon_SMG::Weapon_SMG(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation,
     posADS = glm::vec3(0.0f, -0.2f, -1.0f);
 
     defaultOrientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    ads = false;
+    crosshair = Crosshair(Content::Instance().GetTexture("crosshair"));
 }
 
 void Weapon_SMG::Update(float deltaTime) {
+    ads = (defaultPosition == posADS);
+
     if (isReloading) {
         if (!anim.empty()) {
             anim.front().Update(deltaTime);
@@ -125,6 +133,14 @@ void Weapon_SMG::Draw(ShaderProgram& prog) {
     Entity::Draw(prog);
 }
 
+void Weapon_SMG::Draw(ShaderProgram& prog, ShaderProgram& progCrosshair) {
+    if (!ads) {
+        crosshair.Draw(progCrosshair);
+    }
+
+    Entity::Draw(prog);
+}
+
 void Weapon_SMG::OnPrimaryFirePressed() {
 
 }
@@ -153,7 +169,7 @@ void Weapon_SMG::OnPrimaryFireDown() {
     }
 
     if (shootingTimer >= 1.0f / rof) {
-        glm::vec3 dir = owner->camera.Direction();
+        glm::vec3 dir = glm::normalize(owner->camera.Direction());
         glm::vec3 pos = owner->camera.position + 2.0f * owner->camera.Direction();
         gameEngine->projectiles.push_back(Projectile(pos, 50.0f, dir));
         --ammo;
@@ -190,7 +206,6 @@ void Weapon_SMG::OnSecondaryFirePressed() {
         return;
     }
 
-    ads = true;
     animADS = Animation(0.15f, posHip, posADS);
 }
 
@@ -203,7 +218,6 @@ void Weapon_SMG::OnSecondaryFireReleased() {
         return;
     }
 
-    ads = false;
     animADS = Animation(0.15f, posADS, posHip);
 }
 

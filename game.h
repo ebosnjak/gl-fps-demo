@@ -11,11 +11,15 @@
 #include "entity.h"
 #include "weapon.h"
 #include "projectile.h"
+#include "crosshair.h"
 
 #include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <list>
+
+#include <cstdlib>
+#include <ctime>
 
 #include <iomanip>
 
@@ -33,6 +37,7 @@ public:
 
     Camera camera;
     ShaderProgram prog;
+    ShaderProgram prog2D;
 
     Game(int w, int h);
 

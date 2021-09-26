@@ -3,6 +3,9 @@
 
 #include "entity.h"
 #include "projectile.h"
+#include "crosshair.h"
+
+#include <cstdlib>
 
 class Player;
 
@@ -14,6 +17,9 @@ protected:
     bool isReloading;
 
 public:
+    bool ads;
+    Crosshair crosshair;
+
     Player* owner;
 
     glm::vec3 defaultPosition;
@@ -26,6 +32,7 @@ public:
 
     virtual void Update(float deltaTime) = 0;
     virtual void Draw(ShaderProgram& prog) = 0;
+    virtual void Draw(ShaderProgram& prog, ShaderProgram& progCrosshair) = 0;
 
     virtual void OnPrimaryFirePressed() = 0;
     virtual void OnPrimaryFireDown() = 0;
@@ -49,13 +56,12 @@ private:
     glm::quat defaultOrientation;
 
 public:
-    bool ads;
-
     Weapon_SMG();
     Weapon_SMG(Mesh* _mesh, glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);
+    void Draw(ShaderProgram& prog, ShaderProgram& progCrosshair);
 
     void OnPrimaryFirePressed();
     void OnPrimaryFireDown();

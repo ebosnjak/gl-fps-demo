@@ -8,6 +8,8 @@ void Game::Init() {
     Entity::gameEngine = this;
     Healthbar::gameEngine = this;
 
+    srand(time(0));
+
     Content::Instance().Load();
 
     SetCursorLocked(true);
@@ -17,6 +19,7 @@ void Game::Init() {
     glEnable(GL_MULTISAMPLE);
 
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
+    prog2D = ShaderProgram("vertex2d.glsl", "frag2d.glsl");
 
     world["floor1"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor1"].SetPosition(glm::vec3(0.0f, -2.0f, 0.0f));
@@ -58,6 +61,9 @@ void Game::Init() {
     cnt = 4;
 
     // TODO: 
+    // - ui elements (crosshair, ammo counter)
+    // - hipfire inaccuracy
+    // - on-hit particle effects
     // - sprinting
     // - meleeing with the gun butt
 
@@ -69,6 +75,7 @@ void Game::Init() {
 
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
     prog.SetMat4("proj", proj);
+    prog2D.SetMat4("proj", proj);
 
     prog.SetVec4("light.vector", glm::vec4(-1.0f, -5.0f, -2.0f, 0.0f));
     //prog.SetVec4("light.vector", Vector4(3.0f, 2.0f, 4.0f, 1.0f)); // for point light
@@ -153,7 +160,7 @@ void Game::Draw() {
     prog.SetMat4("view", player.camera.LookAt());
     prog.SetVec3("cameraPos", player.camera.position);
 
-    player.Draw(prog);
+    player.Draw(prog, prog2D);
 
     for (auto& x : world) {
         x.second.Draw(prog);

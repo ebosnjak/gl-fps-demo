@@ -92,7 +92,7 @@ public:
     Player(glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
 
     void Update(float deltaTime);
-    void Draw(ShaderProgram& prog);
+    void Draw(ShaderProgram& prog, ShaderProgram& prog2D);
 };
 
 #endif

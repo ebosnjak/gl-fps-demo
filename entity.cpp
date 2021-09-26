@@ -287,8 +287,8 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
 
 void Player::Update(float deltaTime) {
     glm::vec2 mouseDelta = gameEngine->GetMouseDelta();
-    float deltaYaw = -mouseDelta.x / 2000.0f * 3.14159f;
-    float deltaPitch = -mouseDelta.y / 2000.0f * 3.14159f;
+    float deltaYaw = -mouseDelta.x / 2700.0f * 3.14159f;
+    float deltaPitch = -mouseDelta.y / 2700.0f * 3.14159f;
 
     yaw += deltaYaw;
     pitch += deltaPitch;
@@ -369,7 +369,7 @@ void Player::Update(float deltaTime) {
     Entity::Update(deltaTime);
 }
 
-void Player::Draw(ShaderProgram& prog) {
+void Player::Draw(ShaderProgram& prog, ShaderProgram& prog2D) {
     if (currentWeapon != nullptr) {
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
@@ -377,7 +377,7 @@ void Player::Draw(ShaderProgram& prog) {
 
         prog.SetInt("isViewmodel", 1);
         prog.SetMat4("playerModel", GetModelMatrix());
-        currentWeapon->Draw(prog);
+        currentWeapon->Draw(prog, prog2D);
 
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         glStencilMask(0x00);
