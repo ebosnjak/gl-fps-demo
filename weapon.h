@@ -28,6 +28,9 @@ public:
     float reloadTime;
     float rof;
 
+    float maxSpreadDegrees;
+    float recoilRecoveryTime;
+
     Weapon();
 
     virtual void Update(float deltaTime) = 0;

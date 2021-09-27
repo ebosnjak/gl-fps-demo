@@ -32,6 +32,9 @@ Weapon::Weapon() {
 
     ads = false;
     crosshair = Crosshair();
+
+    maxSpreadDegrees = 0.0f;
+    recoilRecoveryTime = 0.35f;
 }
 
 Weapon_SMG::Weapon_SMG() {
@@ -73,6 +76,9 @@ Weapon_SMG::Weapon_SMG(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation,
 
     ads = false;
     crosshair = Crosshair(Content::Instance().GetTexture("crosshair"));
+
+    maxSpreadDegrees = 4.0f;
+    recoilRecoveryTime = 0.17f;
 }
 
 void Weapon_SMG::Update(float deltaTime) {
@@ -173,10 +179,28 @@ void Weapon_SMG::OnPrimaryFireDown() {
 
     if (shootingTimer >= 1.0f / rof) {
         glm::vec3 dir = glm::normalize(owner->camera.Direction());
-        glm::vec3 pos = owner->camera.position + 2.0f * owner->camera.Direction();
-        gameEngine->projectiles.push_back(Projectile(pos, 50.0f, dir));
+        if (!ads) {
+            float downtime = shootingTimer - 1.0f / rof;
+            if (downtime > recoilRecoveryTime) {
+                downtime = recoilRecoveryTime;
+            }
+
+            float spread = glm::mix(maxSpreadDegrees, 0.5f, downtime / recoilRecoveryTime);
+
+            glm::vec3 axis = glm::normalize(glm::cross(
+                                dir, 
+                                glm::vec3((float)(rand() % 100) * 2.0f / 100.0f - 1.0f, 
+                                          (float)(rand() % 100) * 2.0f / 100.0f - 1.0f, 
+                                          (float)(rand() % 100) * 2.0f / 100.0f - 1.0f)
+                            ));
+
+            float angle = glm::radians((float)(rand() % 100) * 2.0f * spread / 100.0f - spread);
+            dir = glm::angleAxis(angle, axis) * dir;
+        }
+
+        glm::vec3 pos = owner->camera.position + 2.0f * dir;
+        gameEngine->projectiles.push_back(Projectile(pos, 50.0f, dir)); // usual speed is 50.0f
         --ammo;
-        std::cout << "ammo " << ammo << std::endl;
         anim.push(Animation(0.05f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.08f),
                             glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::angleAxis(glm::radians(3.0f), glm::vec3(1.0f, 0.0f, 0.0f))));
 
