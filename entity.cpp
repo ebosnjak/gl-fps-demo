@@ -51,6 +51,7 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
 
     useHpBar = false;
     hpBar = Healthbar();
+    hpBar.currentValue = health;
 }
 
 void Entity::Update(float deltaTime) {
@@ -163,6 +164,10 @@ void Entity::Update(float deltaTime) {
     }
 
     position = nextPos;
+
+    if (useHpBar) {
+        hpBar.Update(deltaTime);
+    }
 
     ComputeMatrix();
 }

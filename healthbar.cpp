@@ -10,6 +10,8 @@ Healthbar::Healthbar() {
     size = glm::vec2(1.0f, 0.2f);
     bgColor = glm::vec3(1.0f, 1.0f, 1.0f);
     fgColor = glm::vec3(1.0f, 0.0f, 0.0f);
+
+    currentValue = 0.0f;
 }
 
 Healthbar::Healthbar(Entity* _owner, glm::vec2 _size, glm::vec3 _fg, glm::vec3 _bg) {
@@ -18,6 +20,16 @@ Healthbar::Healthbar(Entity* _owner, glm::vec2 _size, glm::vec3 _fg, glm::vec3 _
     size = _size;
     fgColor = _fg;
     bgColor = _bg;
+
+    currentValue = owner->health;
+}
+
+void Healthbar::Update(float deltaTime) {
+    if (owner == nullptr || !owner->isAlive) {
+        return;
+    }
+
+    currentValue += ((float)owner->health - currentValue) * 8.0f * deltaTime;
 }
 
 void Healthbar::Draw(ShaderProgram& prog) {
@@ -35,7 +47,8 @@ void Healthbar::Draw(ShaderProgram& prog) {
     Content::Instance().GetMesh("rectangle")->color = bgColor;
     Content::Instance().GetMesh("rectangle")->Draw(prog);
 
-    float width = size.x * (float)owner->health / (float)owner->maxHealth;
+    // float width = size.x * (float)owner->health / (float)owner->maxHealth;
+    float width = size.x * currentValue / (float)owner->maxHealth;
     modelMat = glm::translate(glm::mat4(1.0f), position + glm::vec3(-0.5f * (size.x - width), 0.0f, 0.007f)) * 
                glm::scale(glm::mat4(1.0f), glm::vec3(width, size.y, 1.0f));
 
