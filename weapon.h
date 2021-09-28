@@ -86,4 +86,29 @@ public:
     void OnOwnerSprintEnd();
 };
 
+class Weapon_EnemyGun : public Weapon {
+public:
+    Weapon_EnemyGun();
+    Weapon_EnemyGun(Mesh* _mesh, glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
+
+    void Update(float deltaTime);
+    void Draw(ShaderProgram& prog);
+    void Draw(ShaderProgram& prog, ShaderProgram& progCrosshair);
+
+    void OnPrimaryFirePressed();
+    void OnPrimaryFireDown();
+    void OnPrimaryFireReleased();
+    void OnPrimaryFireUp();
+
+    void OnSecondaryFirePressed();
+    void OnSecondaryFireDown();
+    void OnSecondaryFireReleased();
+    void OnSecondaryFireUp();
+    
+    void OnReload();
+
+    void OnOwnerSprintStart();
+    void OnOwnerSprintEnd();
+};
+
 #endif

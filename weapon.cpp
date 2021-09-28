@@ -297,9 +297,175 @@ void Weapon_SMG::OnReload() {
 }
 
 void Weapon_SMG::OnOwnerSprintStart() {
-    // std::cout << "anim start" << std::endl;
+
 }
 
 void Weapon_SMG::OnOwnerSprintEnd() {
-    // std::cout << "anim end" << std::endl;
+
+}
+
+
+Weapon_EnemyGun::Weapon_EnemyGun() {
+
+}
+
+Weapon_EnemyGun::Weapon_EnemyGun(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _scale) {
+    mesh = _mesh;
+    position = _position;
+    orientation = _orientation;
+    scale = _scale;
+
+    obeysGravity = false;
+    onGround = false;
+    isSolid = false;
+
+    moveDuration = 0.0f;
+    lastPosition = position;
+    nextPosition = position;
+
+    linearVelocity = glm::vec3(0.0f);
+
+    shootingTimer = 0.0f;
+    reloadingTimer = 0.0f;
+    reloadTime = 1.4f;
+    rof = 8.0f;
+
+    ammo = 15;
+    maxAmmo = 15;
+
+    isFiring = false;
+    isReloading = false;
+
+    defaultPosition = glm::vec3(0.7f, -0.4f, -1.4f);
+
+    ads = false;
+    crosshair = Crosshair(Content::Instance().GetTexture("crosshair"));
+
+    maxSpreadDegrees = 4.0f;
+    maxSprintSpreadDegrees = 8.0f;
+    recoilRecoveryTime = 0.17f;
+}
+
+void Weapon_EnemyGun::Update(float deltaTime) {
+    if (isReloading) {
+        reloadingTimer += deltaTime;
+        if (reloadingTimer >= reloadTime) {
+            isReloading = false;
+            reloadingTimer = 0.0f;
+            ammo = maxAmmo;
+        }
+    }
+
+    shootingTimer += deltaTime;
+
+    Entity::Update(deltaTime);
+}
+
+void Weapon_EnemyGun::Draw(ShaderProgram& prog) {
+    // ...
+
+    // Entity::Draw(prog);
+}
+
+void Weapon_EnemyGun::Draw(ShaderProgram& prog, ShaderProgram& progCrosshair) {
+
+    // Entity::Draw(prog);
+}
+
+void Weapon_EnemyGun::OnPrimaryFirePressed() {
+
+}
+
+void Weapon_EnemyGun::OnPrimaryFireDown() {
+    if (ammo == 0) {
+        // auto reload if empty
+        if (!isReloading) {
+            OnReload();
+        }
+        return;
+    }
+
+    if (isReloading) {
+        return;
+    }
+
+    if (shootingTimer >= 1.0f / rof) {
+        glm::vec3 dir = glm::normalize(owner->aimDirection);
+        if (!ads) {
+            float downtime = shootingTimer - 1.0f / rof;
+            if (downtime > recoilRecoveryTime) {
+                downtime = recoilRecoveryTime;
+            }
+
+            float spread = glm::mix((owner->isSprinting ? maxSprintSpreadDegrees : maxSpreadDegrees), 0.5f, downtime / recoilRecoveryTime);
+
+            glm::vec3 axis = glm::normalize(glm::cross(
+                                dir, 
+                                glm::vec3((float)(rand() % 100) * 2.0f / 100.0f - 1.0f, 
+                                          (float)(rand() % 100) * 2.0f / 100.0f - 1.0f, 
+                                          (float)(rand() % 100) * 2.0f / 100.0f - 1.0f)
+                            ));
+
+            float angle = glm::radians((float)(rand() % 100) * 2.0f * spread / 100.0f - spread);
+            dir = glm::angleAxis(angle, axis) * dir;
+        }
+
+        glm::vec3 pos = owner->aimPosition + 2.0f * dir;
+        gameEngine->projectiles.push_back(Projectile(pos, 50.0f, dir)); // usual speed is 50.0f
+        --ammo;
+
+        isFiring = true;
+        shootingTimer = 0.0f;
+    }
+}
+
+void Weapon_EnemyGun::OnPrimaryFireReleased() {
+    if (isReloading) {
+        return;
+    }
+
+    isFiring = false;
+}
+
+void Weapon_EnemyGun::OnPrimaryFireUp() {
+    
+}
+
+void Weapon_EnemyGun::OnSecondaryFirePressed() {
+    if (isReloading) {
+        return;
+    }
+}
+
+void Weapon_EnemyGun::OnSecondaryFireDown() {
+
+}
+
+void Weapon_EnemyGun::OnSecondaryFireReleased() {
+    if (isReloading) {
+        return;
+    }
+
+    ads = false;
+}
+
+void Weapon_EnemyGun::OnSecondaryFireUp() {
+    
+}
+
+void Weapon_EnemyGun::OnReload() {
+    if (ammo == maxAmmo || isReloading) {
+        return;
+    }
+
+    isReloading = true;
+    reloadingTimer = 0.0f;
+}
+
+void Weapon_EnemyGun::OnOwnerSprintStart() {
+    
+}
+
+void Weapon_EnemyGun::OnOwnerSprintEnd() {
+
 }
