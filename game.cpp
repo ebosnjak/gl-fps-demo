@@ -22,6 +22,9 @@ void Game::Init() {
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
     prog2D = ShaderProgram("vertex2d.glsl", "frag2d.glsl");
 
+    smg = Weapon_SMG(Content::Instance().GetMesh("smg"), glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    testgun = Weapon_EnemyGun(nullptr);
+
     world["floor1"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor1"].SetPosition(glm::vec3(0.0f, -2.0f, 0.0f));
     world["floor1"].type = EntityType::World;
@@ -38,24 +41,20 @@ void Game::Init() {
     world["wall1"].SetPosition(glm::vec3(0.0f, 0.0f, -13.0f));
     world["wall1"].type = EntityType::World;
 
-    enemies["test1"] = Entity(Content::Instance().GetMesh("test"));
+    enemies["test1"] = Enemy(Content::Instance().GetMesh("test"));
     enemies["test1"].SetPosition(glm::vec3(17.0f, 7.0f, 0.0f));
-    enemies["test1"].obeysGravity = true;
-    enemies["test1"].type = EntityType::Enemy;
+    enemies["test1"].currentWeapon = &testgun;
+    enemies["test1"].currentWeapon->owner = &enemies["test1"];
     enemies["test1"].useHpBar = true;
     enemies["test1"].hpBar.size.x = 2.4f;
 
-    enemies["test2"] = Entity(Content::Instance().GetMesh("test"));
+    enemies["test2"] = Enemy(Content::Instance().GetMesh("test"));
     enemies["test2"].SetPosition(glm::vec3(27.0f, 10.0f, 5.0f));
-    enemies["test2"].obeysGravity = true;
-    enemies["test2"].type = EntityType::Enemy;
     enemies["test2"].useHpBar = true;
     enemies["test2"].hpBar.size.x = 2.4f;
 
-    enemies["test3"] = Entity(Content::Instance().GetMesh("test"));
+    enemies["test3"] = Enemy(Content::Instance().GetMesh("test"));
     enemies["test3"].SetPosition(glm::vec3(20.0f, 15.0f, -4.0f));
-    enemies["test3"].obeysGravity = true;
-    enemies["test3"].type = EntityType::Enemy;
     enemies["test3"].useHpBar = true;
     enemies["test3"].hpBar.size.x = 2.4f;
 
@@ -64,13 +63,15 @@ void Game::Init() {
     font = SpriteFont(Content::Instance().GetTexture("fontsheet"));
 
     // TODO: 
-    // - ui elements (crosshair, ammo counter)
-    // - hipfire inaccuracy
+    // - enemies that fight back
+    //   - every enemy must have its own gun (if everyone's currentWeapon points to the same object, that's very bad)
+    //   - they shouldn't laser the player with 100% accuracy
+    //   - they should spawn randomly until a maximum number is reached
+    //   - the player should take damage (smh)
+    //
     // - on-hit particle effects
-    // - sprinting
-    // - meleeing with the gun butt
-
-    smg = Weapon_SMG(Content::Instance().GetMesh("smg"), glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    // - (sprinting)                    <--|------- impossible to do, animation code is awful hardcoded radioactive spaghetti 
+    // - (meleeing with the gun butt)   <--|
 
     player = Player(glm::vec3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
     player.currentWeapon = &smg;
@@ -120,10 +121,8 @@ void Game::Update(float deltaTime) {
 
     if (IsKeyPressed(Keys::L)) {
         std::string id = "test" + std::to_string(cnt++);
-        enemies[id] = Entity(Content::Instance().GetMesh("test"));
+        enemies[id] = Enemy(Content::Instance().GetMesh("test"));
         enemies[id].SetPosition(player.camera.position + 10.0f * glm::vec3(player.camera.Direction().x, 0.5f, player.camera.Direction().z));
-        enemies[id].obeysGravity = true;
-        enemies[id].type = EntityType::Enemy;
         enemies[id].useHpBar = true;
         enemies[id].hpBar.size.x = 2.4f;
     }

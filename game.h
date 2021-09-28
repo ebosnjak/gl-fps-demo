@@ -29,11 +29,12 @@ public:
     Player player;
 
     Weapon_SMG smg;
+    Weapon_EnemyGun testgun;
 
     SpriteFont font;
 
     std::unordered_map< std::string, Entity > world;
-    std::unordered_map< std::string, Entity > enemies;
+    std::unordered_map< std::string, Enemy > enemies;
     std::list< Projectile > projectiles;
 
     int cnt;
