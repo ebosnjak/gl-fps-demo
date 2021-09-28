@@ -358,7 +358,7 @@ void Weapon_EnemyGun::Update(float deltaTime) {
 
     shootingTimer += deltaTime;
 
-    Entity::Update(deltaTime);
+    // Entity::Update(deltaTime);
 }
 
 void Weapon_EnemyGun::Draw(ShaderProgram& prog) {
@@ -391,7 +391,7 @@ void Weapon_EnemyGun::OnPrimaryFireDown() {
 
     if (shootingTimer >= 1.0f / rof) {
         glm::vec3 dir = glm::normalize(owner->aimDirection);
-        if (!ads) {
+        /*if (!ads) {
             float downtime = shootingTimer - 1.0f / rof;
             if (downtime > recoilRecoveryTime) {
                 downtime = recoilRecoveryTime;
@@ -408,7 +408,7 @@ void Weapon_EnemyGun::OnPrimaryFireDown() {
 
             float angle = glm::radians((float)(rand() % 100) * 2.0f * spread / 100.0f - spread);
             dir = glm::angleAxis(angle, axis) * dir;
-        }
+        }*/
 
         glm::vec3 pos = owner->aimPosition + 2.0f * dir;
         gameEngine->projectiles.push_back(Projectile(pos, 50.0f, dir)); // usual speed is 50.0f
