@@ -14,6 +14,7 @@ Entity::Entity() {
     obeysGravity = false;
     onGround = false;
     isSolid = true;
+    isSprinting = false;
     orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
 
     moveDuration = 0.0f;
@@ -43,6 +44,7 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
     obeysGravity = false;
     onGround = false;
     isSolid = true;
+    isSprinting = false;
 
     linearVelocity = glm::vec3(0.0f);
 
@@ -304,16 +306,23 @@ void Player::Update(float deltaTime) {
     orientation = glm::quat(glm::vec3(pitch, yaw, 0.0f));
     
     glm::vec3 velocity = glm::vec3(0.0f);
-    if (gameEngine->IsKeyDown(Keys::W)) {
-        velocity += glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 3.0f;
+    if (gameEngine->IsKeyDown(Keys::W) && !gameEngine->IsKeyDown(Keys::S)) {
+        if (gameEngine->IsKeyDown(Keys::LShift) && !currentWeapon->ads) {
+            velocity += glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 7.0f;
+            isSprinting = true;
+        }
+        else {
+            velocity += glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 3.0f;
+            isSprinting = false;
+        }
     }
-    if (gameEngine->IsKeyDown(Keys::S)) {
+    if (gameEngine->IsKeyDown(Keys::S) && !gameEngine->IsKeyDown(Keys::W)) {
         velocity -= glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 3.0f;
     }
-    if (gameEngine->IsKeyDown(Keys::A)) {
+    if (gameEngine->IsKeyDown(Keys::A) && !gameEngine->IsKeyDown(Keys::D)) {
         velocity -= camera.Right() * 3.0f;
     }
-    if (gameEngine->IsKeyDown(Keys::D)) {
+    if (gameEngine->IsKeyDown(Keys::D) && !gameEngine->IsKeyDown(Keys::A)) {
         velocity += camera.Right() * 3.0f;
     }
     if (gameEngine->IsKeyPressed(Keys::Space)) {
@@ -323,8 +332,8 @@ void Player::Update(float deltaTime) {
         }
     }
 
-    if (glm::length(velocity) > 3.0f) {
-        velocity = glm::normalize(velocity) * 3.0f;
+    if (glm::length(velocity) > (isSprinting ? 7.0f : 3.0f)) {
+        velocity = glm::normalize(velocity) * (isSprinting ? 7.0f : 3.0f);
     }
 
     linearVelocity.x = velocity.x;

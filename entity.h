@@ -50,6 +50,7 @@ public:
     bool isSolid;
     bool isAlive;
     bool useHpBar;
+    bool isSprinting;
     Healthbar hpBar;
     int health, maxHealth;
     EntityType type;
