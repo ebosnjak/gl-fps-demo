@@ -27,6 +27,9 @@ Entity::Entity() {
 
     useHpBar = false;
     hpBar = Healthbar();
+
+    aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+    aimPosition = position;
 }
 
 Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _scale) {
@@ -56,6 +59,9 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
     useHpBar = false;
     hpBar = Healthbar();
     hpBar.currentValue = health;
+
+    aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+    aimPosition = position;
 }
 
 void Entity::Update(float deltaTime) {
@@ -294,6 +300,9 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
     currentWeapon = nullptr;
 
     type = EntityType::Player;
+
+    aimDirection = camera.Direction();
+    aimPosition = camera.position;
 }
 
 void Player::Update(float deltaTime) {
@@ -357,6 +366,9 @@ void Player::Update(float deltaTime) {
 
     camera.Update(deltaTime);
 
+    aimDirection = camera.Direction();
+    aimPosition = camera.position;
+
     if (currentWeapon != nullptr) {
         if (gameEngine->IsButtonPressed(Mouse::Left)) {
             currentWeapon->OnPrimaryFirePressed();
@@ -409,4 +421,43 @@ void Player::Draw(ShaderProgram& prog, ShaderProgram& prog2D) {
 
         prog.SetInt("isViewmodel", 0);
     }
+}
+
+
+Enemy::Enemy() {
+    currentWeapon = nullptr;
+}
+
+Enemy::Enemy(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _scale) {
+    position = _position;
+    orientation = _orientation;
+    scale = _scale;
+
+    mesh = _mesh;
+    obeysGravity = true;
+
+    currentWeapon = nullptr;
+
+    type = EntityType::Enemy;
+
+    aimPosition = position + glm::vec3(0.0f, 1.0f, 0.0f);
+    aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+}
+
+void Enemy::Update(float deltaTime) {
+    aimPosition = position + glm::vec3(0.0f, 1.0f, 0.0f);
+    aimDirection = glm::normalize(gameEngine->player.GetPosition() - aimPosition);
+
+    if (currentWeapon != nullptr) {
+        currentWeapon->OnPrimaryFireDown();
+        currentWeapon->Update(deltaTime);
+    }
+
+
+    Entity::Update(deltaTime);
+}
+
+void Enemy::Draw(ShaderProgram& prog) {
+
+    Entity::Draw(prog);
 }

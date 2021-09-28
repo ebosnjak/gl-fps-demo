@@ -49,10 +49,17 @@ public:
     bool onGround;
     bool isSolid;
     bool isAlive;
+    
+    bool isSprinting;
+    bool wasSprinting;
+
     bool useHpBar;
-    bool isSprinting, wasSprinting;
     Healthbar hpBar;
     int health, maxHealth;
+    
+    glm::vec3 aimDirection;
+    glm::vec3 aimPosition;
+
     EntityType type;
     
     Entity();
@@ -94,6 +101,17 @@ public:
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog, ShaderProgram& prog2D);
+};
+
+class Enemy : public Entity {
+public:
+    Weapon* currentWeapon;
+
+    Enemy();
+    Enemy(Mesh* _mesh, glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
+
+    void Update(float deltaTime);
+    void Draw(ShaderProgram& prog);
 };
 
 #endif
