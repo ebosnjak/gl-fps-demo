@@ -183,7 +183,7 @@ void Weapon_SMG::OnPrimaryFireDown() {
     }
 
     if (shootingTimer >= 1.0f / rof) {
-        glm::vec3 dir = glm::normalize(owner->camera.Direction());
+        glm::vec3 dir = glm::normalize(owner->aimDirection);
         if (!ads) {
             float downtime = shootingTimer - 1.0f / rof;
             if (downtime > recoilRecoveryTime) {
@@ -203,7 +203,7 @@ void Weapon_SMG::OnPrimaryFireDown() {
             dir = glm::angleAxis(angle, axis) * dir;
         }
 
-        glm::vec3 pos = owner->camera.position + 2.0f * dir;
+        glm::vec3 pos = owner->aimPosition + 2.0f * dir;
         gameEngine->projectiles.push_back(Projectile(pos, 50.0f, dir)); // usual speed is 50.0f
         --ammo;
         anim.push(Animation(0.05f, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.08f),
@@ -297,9 +297,9 @@ void Weapon_SMG::OnReload() {
 }
 
 void Weapon_SMG::OnOwnerSprintStart() {
-    std::cout << "anim start" << std::endl;
+    // std::cout << "anim start" << std::endl;
 }
 
 void Weapon_SMG::OnOwnerSprintEnd() {
-    std::cout << "anim end" << std::endl;
+    // std::cout << "anim end" << std::endl;
 }

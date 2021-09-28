@@ -7,7 +7,7 @@
 
 #include <cstdlib>
 
-class Player;
+class Entity;
 
 class Weapon : public Entity {
 protected:
@@ -20,7 +20,7 @@ public:
     bool ads;
     Crosshair crosshair;
 
-    Player* owner;
+    Entity* owner;
 
     glm::vec3 defaultPosition;
 
