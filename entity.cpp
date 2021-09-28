@@ -318,6 +318,7 @@ void Player::Update(float deltaTime) {
     }
     if (gameEngine->IsKeyDown(Keys::S) && !gameEngine->IsKeyDown(Keys::W)) {
         velocity -= glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 3.0f;
+        isSprinting = false;
     }
     if (gameEngine->IsKeyDown(Keys::A) && !gameEngine->IsKeyDown(Keys::D)) {
         velocity -= camera.Right() * 3.0f;
