@@ -34,6 +34,7 @@ Weapon::Weapon() {
     crosshair = Crosshair();
 
     maxSpreadDegrees = 0.0f;
+    maxSprintSpreadDegrees = 0.0f;
     recoilRecoveryTime = 0.35f;
 }
 
@@ -78,6 +79,7 @@ Weapon_SMG::Weapon_SMG(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation,
     crosshair = Crosshair(Content::Instance().GetTexture("crosshair"));
 
     maxSpreadDegrees = 4.0f;
+    maxSprintSpreadDegrees = 8.0f;
     recoilRecoveryTime = 0.17f;
 }
 
@@ -185,7 +187,7 @@ void Weapon_SMG::OnPrimaryFireDown() {
                 downtime = recoilRecoveryTime;
             }
 
-            float spread = glm::mix(maxSpreadDegrees, 0.5f, downtime / recoilRecoveryTime);
+            float spread = glm::mix((owner->isSprinting ? maxSprintSpreadDegrees : maxSpreadDegrees), 0.5f, downtime / recoilRecoveryTime);
 
             glm::vec3 axis = glm::normalize(glm::cross(
                                 dir, 

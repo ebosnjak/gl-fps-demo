@@ -29,6 +29,7 @@ public:
     float rof;
 
     float maxSpreadDegrees;
+    float maxSprintSpreadDegrees;
     float recoilRecoveryTime;
 
     Weapon();
