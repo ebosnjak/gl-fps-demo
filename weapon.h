@@ -49,6 +49,9 @@ public:
     virtual void OnSecondaryFireUp() = 0;
 
     virtual void OnReload() = 0;
+
+    virtual void OnOwnerSprintStart() = 0;
+    virtual void OnOwnerSprintEnd() = 0;
 };
 
 class Weapon_SMG : public Weapon {
@@ -78,6 +81,9 @@ public:
     void OnSecondaryFireUp();
     
     void OnReload();
+
+    void OnOwnerSprintStart();
+    void OnOwnerSprintEnd();
 };
 
 #endif

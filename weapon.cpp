@@ -128,6 +128,9 @@ void Weapon_SMG::Update(float deltaTime) {
                 anim.pop();
             }
         }
+        else if (!anim.empty() && owner->isSprinting) {
+            
+        }
         else {
             position = defaultPosition;
         }
@@ -291,4 +294,12 @@ void Weapon_SMG::OnReload() {
         anim.push(Animation(0.3f * reloadTime, posADS + glm::vec3(0.0f, -0.6f, -0.4f), posHip, 
                             glm::angleAxis(glm::radians(70.0f), glm::vec3(0.0f, 1.0f, 0.0f)), glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f))));
     }
+}
+
+void Weapon_SMG::OnOwnerSprintStart() {
+    std::cout << "anim start" << std::endl;
+}
+
+void Weapon_SMG::OnOwnerSprintEnd() {
+    std::cout << "anim end" << std::endl;
 }

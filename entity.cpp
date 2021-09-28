@@ -15,6 +15,7 @@ Entity::Entity() {
     onGround = false;
     isSolid = true;
     isSprinting = false;
+    wasSprinting = false;
     orientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
 
     moveDuration = 0.0f;
@@ -45,6 +46,7 @@ Entity::Entity(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _
     onGround = false;
     isSolid = true;
     isSprinting = false;
+    wasSprinting = false;
 
     linearVelocity = glm::vec3(0.0f);
 
@@ -170,6 +172,8 @@ void Entity::Update(float deltaTime) {
     if (useHpBar) {
         hpBar.Update(deltaTime);
     }
+
+    wasSprinting = isSprinting;
 
     ComputeMatrix();
 }
@@ -310,10 +314,16 @@ void Player::Update(float deltaTime) {
         if (gameEngine->IsKeyDown(Keys::LShift) && !currentWeapon->ads) {
             velocity += glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 7.0f;
             isSprinting = true;
+            if (!wasSprinting) {
+                currentWeapon->OnOwnerSprintStart();
+            }
         }
         else {
             velocity += glm::normalize(glm::vec3(camera.Direction().x, 0.0f, camera.Direction().z)) * 3.0f;
             isSprinting = false;
+            if (wasSprinting) {
+                currentWeapon->OnOwnerSprintEnd();
+            }
         }
     }
     if (gameEngine->IsKeyDown(Keys::S) && !gameEngine->IsKeyDown(Keys::W)) {
