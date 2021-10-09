@@ -14,6 +14,8 @@ void SpriteFont::DrawString(ShaderProgram& prog, const std::string& text, glm::v
 
     Content::Instance().GetMesh("rectangle_topleft")->color = color;
     
+    prog.SetInt("useTexture", 1);
+
     float tw = 70.0f / 1120.0f, th = 80.0f / 640.0f;
     float xpos = position.x;
     

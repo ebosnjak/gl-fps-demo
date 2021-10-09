@@ -17,6 +17,7 @@ void Crosshair::Draw(ShaderProgram& prog) {
     }
 
     prog.Use();
+    prog.SetInt("useTexture", 1);
     prog.SetInt("tex", 0);
     glActiveTexture(GL_TEXTURE0);
     texture->Bind();
