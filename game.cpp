@@ -59,17 +59,14 @@ void Game::Init() {
 
     // TODO: 
     // - enemies that fight back
-    //   - every enemy must have its own gun (if everyone's currentWeapon points to the same object, that's very bad)
     //   - they shouldn't laser the player with 100% accuracy
     //   - they should spawn randomly until a maximum number is reached
-    //   - the player should take damage (smh)
     //
-    // - on-hit particle effects
     // - (sprinting)                    <--|------- impossible to do, animation code is awful hardcoded radioactive spaghetti 
     // - (meleeing with the gun butt)   <--|
 
     player = Player(glm::vec3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
-    player.maxHealth = 10000;
+    player.maxHealth = 500;
     player.health = player.maxHealth;
     player.hpBarUI.position = glm::vec2(20.0f, 20.0f);
 
@@ -97,6 +94,14 @@ void Game::Update(float deltaTime) {
     }
     else {
         SetCursorLocked(true);
+    }
+
+    if (!player.isAlive) {
+        if (IsKeyPressed(Keys::Escape)) {
+            isRunning = false;
+        }
+
+        return;
     }
 
     if (player.GetPosition().y < -25.0f) {
@@ -156,6 +161,15 @@ void Game::Draw() {
     glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
     glStencilMask(0xFF);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    if (!player.isAlive) {
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        font.DrawString(prog2D, "Game over!", glm::vec2(20.0f, 20.0f), glm::vec2(0.7f, 0.7f), glm::vec3(1.0f, 0.15f, 0.0f));
+
+        return;
+    }
 
     prog.SetMat4("view", player.camera.LookAt());
     prog.SetVec3("cameraPos", player.camera.position);
