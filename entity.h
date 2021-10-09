@@ -94,6 +94,8 @@ private:
     float pitchLimit;
 
 public:
+    UI_Healthbar hpBarUI;
+
     Camera camera;
     Weapon* currentWeapon;
 

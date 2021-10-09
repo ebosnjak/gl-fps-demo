@@ -304,6 +304,8 @@ Player::Player(const Player& player) {
 
     aimDirection = camera.Direction();
     aimPosition = camera.position;
+
+    hpBarUI = player.hpBarUI;
 }
 
 Player::Player(Player&& player) {
@@ -327,6 +329,9 @@ Player::Player(Player&& player) {
 
     aimDirection = camera.Direction();
     aimPosition = camera.position;
+
+    hpBarUI = player.hpBarUI;
+    hpBarUI.owner = this;
 }
 
 Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
@@ -350,6 +355,9 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
 
     aimDirection = camera.Direction();
     aimPosition = camera.position;
+
+    hpBarUI = UI_Healthbar(this, glm::vec2(200.0f, 40.0f), glm::vec2(20.0f, 20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    hpBarUI.owner = this;
 }
 
 Player::~Player() {
@@ -380,6 +388,9 @@ Player& Player::operator=(const Player& player) {
     aimDirection = camera.Direction();
     aimPosition = camera.position;
 
+    hpBarUI = player.hpBarUI;
+    hpBarUI.owner = this;
+
     return (*this);
 }
 
@@ -404,6 +415,9 @@ Player& Player::operator=(Player&& player) {
 
     aimDirection = camera.Direction();
     aimPosition = camera.position;
+
+    hpBarUI = player.hpBarUI;
+    hpBarUI.owner = this;
 
     return (*this);
 }
@@ -506,6 +520,8 @@ void Player::Update(float deltaTime) {
         currentWeapon->Update(deltaTime);
     }
 
+    hpBarUI.Update(deltaTime);
+
     Entity::Update(deltaTime);
 }
 
@@ -524,6 +540,8 @@ void Player::Draw(ShaderProgram& prog, ShaderProgram& prog2D) {
 
         prog.SetInt("isViewmodel", 0);
     }
+
+    hpBarUI.Draw(prog2D);
 }
 
 
