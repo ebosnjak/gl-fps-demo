@@ -123,7 +123,7 @@ void Game::Update(float deltaTime) {
     if (IsKeyPressed(Keys::L)) {
         std::string id = "test" + std::to_string(cnt++);
         enemies[id] = Enemy(Content::Instance().GetMesh("test"));
-        enemies[id].SetPosition(player.camera.position + 10.0f * glm::vec3(player.camera.Direction().x, 0.5f, player.camera.Direction().z));
+        enemies[id].SetPosition(player.camera.position + 20.0f * glm::vec3(player.camera.Direction().x, 0.5f, player.camera.Direction().z));
         enemies[id].useHpBar = true;
         enemies[id].hpBar.size.x = 2.4f;
     }
