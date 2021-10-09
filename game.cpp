@@ -127,6 +127,10 @@ void Game::Update(float deltaTime) {
         enemies[id].useHpBar = true;
         enemies[id].hpBar.size.x = 2.4f;
     }
+    
+    if (IsKeyPressed(Keys::H)) {
+        player.health = player.maxHealth;
+    }
 
     player.Update(deltaTime);
 
