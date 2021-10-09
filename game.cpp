@@ -22,9 +22,6 @@ void Game::Init() {
     prog = ShaderProgram("vertex.glsl", "fragment.glsl");
     prog2D = ShaderProgram("vertex2d.glsl", "frag2d.glsl");
 
-    smg = Weapon_SMG(Content::Instance().GetMesh("smg"), glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
-    testgun = Weapon_EnemyGun(nullptr);
-
     world["floor1"] = Entity(Content::Instance().GetMesh("floor"));
     world["floor1"].SetPosition(glm::vec3(0.0f, -2.0f, 0.0f));
     world["floor1"].type = EntityType::World;
@@ -43,8 +40,6 @@ void Game::Init() {
 
     enemies["test1"] = Enemy(Content::Instance().GetMesh("test"));
     enemies["test1"].SetPosition(glm::vec3(17.0f, 7.0f, 0.0f));
-    enemies["test1"].currentWeapon = &testgun;
-    enemies["test1"].currentWeapon->owner = &enemies["test1"];
     enemies["test1"].useHpBar = true;
     enemies["test1"].hpBar.size.x = 2.4f;
 
@@ -74,8 +69,6 @@ void Game::Init() {
     // - (meleeing with the gun butt)   <--|
 
     player = Player(glm::vec3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
-    player.currentWeapon = &smg;
-    player.currentWeapon->owner = &player;
 
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
     prog.SetMat4("proj", proj);

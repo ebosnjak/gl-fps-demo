@@ -97,7 +97,13 @@ public:
     Camera camera;
     Weapon* currentWeapon;
 
+    Player(const Player& player);
+    Player(Player&& player);
     Player(glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
+    ~Player();
+
+    Player& operator=(const Player& player);
+    Player& operator=(Player&& player);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog, ShaderProgram& prog2D);
@@ -108,7 +114,14 @@ public:
     Weapon* currentWeapon;
 
     Enemy();
+    Enemy(const Enemy& enemy);
+    Enemy(Enemy&& enemy);
     Enemy(Mesh* _mesh, glm::vec3 _position = glm::vec3(0.0f), glm::quat _orientation = glm::quat(glm::vec3(0.0f)), float _scale = 1.0f);
+
+    ~Enemy();
+
+    Enemy& operator=(const Enemy& enemy);
+    Enemy& operator=(Enemy&& enemy);
 
     void Update(float deltaTime);
     void Draw(ShaderProgram& prog);

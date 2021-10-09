@@ -283,6 +283,51 @@ glm::mat4 Entity::GetModelMatrix() {
     return modelMatrix;
 }
 
+Player::Player(const Player& player) {
+    position = player.position;
+    orientation = player.orientation;
+    scale = player.scale;
+
+    mesh = player.mesh;
+    customAABB = player.customAABB;
+    camera = player.camera;
+
+    obeysGravity = true;
+    pitchLimit = 87.0f * 3.14159f / 180.0f;
+    yaw = 0.0f; pitch = 0.0f;
+
+    currentWeapon = new Weapon_SMG(Content::Instance().GetMesh("smg"), 
+                                    glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    currentWeapon->owner = this;
+
+    type = EntityType::Player;
+
+    aimDirection = camera.Direction();
+    aimPosition = camera.position;
+}
+
+Player::Player(Player&& player) {
+    position = player.position;
+    orientation = player.orientation;
+    scale = player.scale;
+
+    mesh = player.mesh;
+    customAABB = player.customAABB;
+    camera = player.camera;
+
+    obeysGravity = true;
+    pitchLimit = 87.0f * 3.14159f / 180.0f;
+    yaw = 0.0f; pitch = 0.0f;
+
+    currentWeapon = new Weapon_SMG(Content::Instance().GetMesh("smg"), 
+                                    glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    currentWeapon->owner = this;
+
+    type = EntityType::Player;
+
+    aimDirection = camera.Direction();
+    aimPosition = camera.position;
+}
 
 Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
     position = _position;
@@ -297,12 +342,70 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
     pitchLimit = 87.0f * 3.14159f / 180.0f;
     yaw = 0.0f; pitch = 0.0f;
 
-    currentWeapon = nullptr;
+    currentWeapon = new Weapon_SMG(Content::Instance().GetMesh("smg"), 
+                                    glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    currentWeapon->owner = this;
 
     type = EntityType::Player;
 
     aimDirection = camera.Direction();
     aimPosition = camera.position;
+}
+
+Player::~Player() {
+    if (currentWeapon != nullptr) {
+        delete currentWeapon;
+    }
+}
+
+Player& Player::operator=(const Player& player) {
+    position = player.position;
+    orientation = player.orientation;
+    scale = player.scale;
+
+    mesh = player.mesh;
+    customAABB = player.customAABB;
+    camera = player.camera;
+
+    obeysGravity = true;
+    pitchLimit = 87.0f * 3.14159f / 180.0f;
+    yaw = 0.0f; pitch = 0.0f;
+
+    currentWeapon = new Weapon_SMG(Content::Instance().GetMesh("smg"), 
+                                    glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    currentWeapon->owner = this;
+
+    type = EntityType::Player;
+
+    aimDirection = camera.Direction();
+    aimPosition = camera.position;
+
+    return (*this);
+}
+
+Player& Player::operator=(Player&& player) {
+    position = player.position;
+    orientation = player.orientation;
+    scale = player.scale;
+
+    mesh = player.mesh;
+    customAABB = player.customAABB;
+    camera = player.camera;
+
+    obeysGravity = true;
+    pitchLimit = 87.0f * 3.14159f / 180.0f;
+    yaw = 0.0f; pitch = 0.0f;
+
+    currentWeapon = new Weapon_SMG(Content::Instance().GetMesh("smg"), 
+                                    glm::vec3(0.7f, -0.4f, -1.4f), glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), 0.2f);
+    currentWeapon->owner = this;
+
+    type = EntityType::Player;
+
+    aimDirection = camera.Direction();
+    aimPosition = camera.position;
+
+    return (*this);
 }
 
 void Player::Update(float deltaTime) {
@@ -428,6 +531,40 @@ Enemy::Enemy() {
     currentWeapon = nullptr;
 }
 
+Enemy::Enemy(const Enemy& enemy) {
+    position = enemy.position;
+    orientation = enemy.orientation;
+    scale = enemy.scale;
+
+    mesh = enemy.mesh;
+    obeysGravity = true;
+
+    currentWeapon = new Weapon_EnemyGun(nullptr);
+    currentWeapon->owner = this;
+
+    type = EntityType::Enemy;
+
+    aimPosition = position + glm::vec3(0.0f, 1.0f, 0.0f);
+    aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+}
+
+Enemy::Enemy(Enemy&& enemy) {
+    position = enemy.position;
+    orientation = enemy.orientation;
+    scale = enemy.scale;
+
+    mesh = enemy.mesh;
+    obeysGravity = true;
+
+    currentWeapon = new Weapon_EnemyGun(nullptr);
+    currentWeapon->owner = this;
+
+    type = EntityType::Enemy;
+
+    aimPosition = position + glm::vec3(0.0f, 1.0f, 0.0f);
+    aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+}
+
 Enemy::Enemy(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _scale) {
     position = _position;
     orientation = _orientation;
@@ -436,12 +573,57 @@ Enemy::Enemy(Mesh* _mesh, glm::vec3 _position, glm::quat _orientation, float _sc
     mesh = _mesh;
     obeysGravity = true;
 
-    currentWeapon = nullptr;
+    currentWeapon = new Weapon_EnemyGun(nullptr);
+    currentWeapon->owner = this;
 
     type = EntityType::Enemy;
 
     aimPosition = position + glm::vec3(0.0f, 1.0f, 0.0f);
     aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+}
+
+Enemy::~Enemy() {
+    if (currentWeapon != nullptr) {
+        delete currentWeapon;
+    }
+}
+
+Enemy& Enemy::operator=(const Enemy& enemy) {
+    position = enemy.position;
+    orientation = enemy.orientation;
+    scale = enemy.scale;
+
+    mesh = enemy.mesh;
+    obeysGravity = true;
+
+    currentWeapon = new Weapon_EnemyGun(nullptr);
+    currentWeapon->owner = this;
+
+    type = EntityType::Enemy;
+
+    aimPosition = position + glm::vec3(0.0f, 1.0f, 0.0f);
+    aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+
+    return (*this);
+}
+
+Enemy& Enemy::operator=(Enemy&& enemy) {
+    position = enemy.position;
+    orientation = enemy.orientation;
+    scale = enemy.scale;
+
+    mesh = enemy.mesh;
+    obeysGravity = true;
+
+    currentWeapon = new Weapon_EnemyGun(nullptr);
+    currentWeapon->owner = this;
+
+    type = EntityType::Enemy;
+
+    aimPosition = position + glm::vec3(0.0f, 1.0f, 0.0f);
+    aimDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+
+    return (*this);
 }
 
 void Enemy::Update(float deltaTime) {
