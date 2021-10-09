@@ -69,6 +69,9 @@ void Game::Init() {
     // - (meleeing with the gun butt)   <--|
 
     player = Player(glm::vec3(0.0f, 2.0f, 0.0f), glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)));
+    player.maxHealth = 10000;
+    player.health = player.maxHealth;
+    player.hpBarUI.position = glm::vec2(20.0f, 20.0f);
 
     glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
     prog.SetMat4("proj", proj);

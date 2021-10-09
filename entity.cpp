@@ -356,7 +356,7 @@ Player::Player(glm::vec3 _position, glm::quat _orientation, float _scale) {
     aimDirection = camera.Direction();
     aimPosition = camera.position;
 
-    hpBarUI = UI_Healthbar(this, glm::vec2(200.0f, 40.0f), glm::vec2(20.0f, 20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    hpBarUI = UI_Healthbar(this, glm::vec2(200.0f, 20.0f), glm::vec2(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     hpBarUI.owner = this;
 }
 

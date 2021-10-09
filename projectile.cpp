@@ -58,6 +58,10 @@ void Projectile::Update(float deltaTime) {
         }
     }
 
+    if (Box::CheckAABB(GetAABB(), gameEngine->player.GetAABB())) {
+        OnHit(&(gameEngine->player));
+    }
+
     Entity::Update(deltaTime);
 }
 
@@ -74,5 +78,10 @@ void Projectile::OnHit(Entity* target) {
     }
     else if (target->type == EntityType::World) {
         isAlive = false;
+    }
+    else if (target->type == EntityType::Player) {
+        target->health -= damage;
+        isAlive = false;
+        std::cout << "hit player" << std::endl;
     }
 }
