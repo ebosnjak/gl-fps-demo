@@ -1,5 +1,12 @@
 #include "application.h"
 
+bool Application::firstMouse = true;
+uint8_t Application::mouseState;     // bits represent: scrollDown|scrollUp|lastRMB|lastMMB|lastLMB|RMB|MMB|LMB
+double Application::mouseX, Application::mouseY, Application::lastMouseX, Application::lastMouseY;
+uint16_t Application::keyState[32], Application::lastKeyState[32];
+bool Application::isFocused;
+bool Application::isCursorLocked;
+
 Application::Application(int w, int h) {
     for (int i = 0; i < 32; i++) {
         keyState[i] = 0;
@@ -8,224 +15,78 @@ Application::Application(int w, int h) {
 
     mouseState = 0;
 
-    windowWidth = w;
-    windowHeight = h;
-
     isCursorLocked = false;
     isFocused = true;
 
-    dpy = XOpenDisplay(NULL);
-    
-    int attribs[] = {
-        GLX_RENDER_TYPE, GLX_RGBA_BIT,
-        GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-        GLX_DOUBLEBUFFER, true,
-        GLX_RED_SIZE, 8,
-        GLX_GREEN_SIZE, 8,
-        GLX_BLUE_SIZE, 8,
-        GLX_ALPHA_SIZE, 8,
-        GLX_DEPTH_SIZE, 24,
-        GLX_STENCIL_SIZE, 8,
-        None
-    };
-
-    int nFbConfigs = 0;
-    GLXFBConfig *fbConfigs = glXChooseFBConfig(dpy, DefaultScreen(dpy), attribs, &nFbConfigs);
-    if (fbConfigs == nullptr) {
-        std::cout << "Error: glXChooseFBConfig failed" << std::endl;
-        return;
-    }
-
-    int bestConfig = 0, prefSamp = 16;
-    for (int i = 0; i < nFbConfigs; i++) {
-        int samp;
-        glXGetFBConfigAttrib(dpy, fbConfigs[i], GLX_SAMPLES, &samp);
-        if (samp == prefSamp) {
-            bestConfig = i;
-        }
-    }
-
-    XVisualInfo* vinfo = glXGetVisualFromFBConfig(dpy, fbConfigs[bestConfig]);
-    XSetWindowAttributes swa;
-    Colormap cmap;
-    cmap = XCreateColormap(dpy, RootWindow(dpy, vinfo->screen), vinfo->visual, AllocNone);
-    swa.colormap = cmap;
-    swa.background_pixmap = None;
-    
-    wnd = XCreateWindow(dpy, RootWindow(dpy, vinfo->screen), 
-                        200, 200,
-                        windowWidth, windowHeight,
-                        0,
-                        vinfo->depth, InputOutput, vinfo->visual,
-                        CWBorderPixel | CWColormap, &swa);
-    if (!wnd) {
-        std::cout << "Error: XCreateWindow failed" << std::endl;
-        return;
-    }
-
-    glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 
-        (glXCreateContextAttribsARBProc) glXGetProcAddress((const GLubyte*)"glXCreateContextAttribsARB");
-
-    if (glXCreateContextAttribsARB == nullptr) {
-        std::cout << "Error: glXGetProcAddress failed" << std::endl;
-        return;
-    }    
-
-    int contextAttribs[] = {
-        GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
-        GLX_CONTEXT_MINOR_VERSION_ARB, 2,
-        None
-    };
-
-    ctx = glXCreateContextAttribsARB(dpy, fbConfigs[bestConfig], NULL, true, contextAttribs);
-    
-    if (ctx == nullptr) {
-        std::cout << "Error: glXCreateContextAttribsARB failed" << std::endl;
-        return;
-    }
-
-    long eventMask = KeyPressMask | KeyReleaseMask | KeymapStateMask | StructureNotifyMask | FocusChangeMask |
-                    PointerMotionMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask;
-    
-    XSelectInput(dpy, wnd, eventMask);
-
-    XkbSetDetectableAutoRepeat(dpy, true, NULL);    
-
-    XStoreName(dpy, wnd, "opengl window");
-    XMapWindow(dpy, wnd);
-    glXMakeCurrent(dpy, wnd, ctx);
-
-    std::cout << "Success: GL context created and window opened" << std::endl;
+    windowWidth = w;
+    windowHeight = h;
 
     isRunning = false;
 
-    LoadGLProcs();
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 8);
 
+    window = glfwCreateWindow(windowWidth, windowHeight, "opengl window", nullptr, nullptr);
+    if (window == nullptr) {
+        std::cout << "Error: Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return;
+    }
+    glfwMakeContextCurrent(window);
+
+    glfwSetWindowPos(window, 200, 200);
+
+    glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+    glfwSetKeyCallback(window, KeyCallback);
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetCursorPosCallback(window, CursorPosCallback);
+    glfwSetWindowFocusCallback(window, WindowFocusCallback);
+
+    LoadGLProcs();
     std::cout << "Success: Loaded GL functions" << std::endl;
 
     glViewport(0, 0, windowWidth, windowHeight);
 }
 
 Application::~Application() {
-    glXDestroyContext(dpy, ctx);
-    XDestroyWindow(dpy, wnd);
-    XCloseDisplay(dpy);
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 
 void Application::Run() {
-    Atom wmDeleteWindow = XInternAtom(dpy, "WM_DELETE_WINDOW", false);
-    XSetWMProtocols(dpy, wnd, &wmDeleteWindow, 1);
-
     Init();
 
     auto lastT = clock.now();
 
-    lastMouseX = windowWidth / 2;
-    lastMouseY = windowHeight / 2;
-    mouseX = lastMouseX;
-    mouseY = lastMouseY;
-
-    XWarpPointer(dpy, 0, wnd, 0, 0, 0, 0, lastMouseX, lastMouseY);
-
     isRunning = true;
     while (isRunning) {
-        for (int i = 0; i < 32; i++) {
-            lastKeyState[i] = keyState[i];
-        }
-
-        mouseState &= ~(3 << 6);                // clear scroll up/down flags (not used for now)
-        mouseState &= ~(7 << 3);                // clear last mouse state;
-        mouseState |= ((mouseState & 7) << 3);  // set last mouse state to current mouse state
-
-        if (isCursorLocked) {
-            lastMouseX = windowWidth / 2;
-            lastMouseY = windowHeight / 2;
-            XWarpPointer(dpy, 0, wnd, 0, 0, 0, 0, lastMouseX, lastMouseY);
-        }
-        else {
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-        }
-
-        XEvent evt;
-        while (XPending(dpy)) {
-            XNextEvent(dpy, &evt);
-
-            KeySym ksym = 0;
-            int len = 0;
-            char str[25] = {0};
-            if (evt.type == ClientMessage) {
-                if (evt.xclient.data.l[0] == wmDeleteWindow) {
-                    isRunning = false;
-                    break;
-                }
-            }
-            else if (evt.type == ConfigureNotify) {
-                if (evt.xconfigure.width != windowWidth || evt.xconfigure.height != windowHeight) {
-                    windowWidth = evt.xconfigure.width;
-                    windowHeight = evt.xconfigure.height;
-                    glViewport(0, 0, windowWidth, windowHeight);
-                }
-            }
-            else if (evt.type == KeymapNotify) {
-                XRefreshKeyboardMapping(&evt.xmapping);
-            }
-            else if (evt.type == KeyPress) {
-                KeyCode kcode = evt.xkey.keycode;
-                keyState[kcode / 8] |= (1 << (kcode % 8));
-            }
-            else if (evt.type == KeyRelease) {
-                KeyCode kcode = evt.xkey.keycode;
-                keyState[kcode / 8] &= ~(1 << (kcode % 8));
-            }
-            else if (evt.type == MotionNotify) {
-                mouseX = evt.xmotion.x;
-                mouseY = evt.xmotion.y;
-            }
-            else if (evt.type == ButtonPress) {
-                if (evt.xbutton.button == 1) {
-                    mouseState |= 1;
-                }
-                else if (evt.xbutton.button == 2) {
-                    mouseState |= (1 << 1);
-                }
-                else if (evt.xbutton.button == 3) {
-                    mouseState |= (1 << 2);
-                }
-                else if (evt.xbutton.button == 4) {
-                    mouseState |= (1 << 6);
-                }
-                else if (evt.xbutton.button == 5) {
-                    mouseState |= (1 << 7);
-                }
-            }
-            else if (evt.type == ButtonRelease) {
-                if (evt.xbutton.button == 1) {
-                    mouseState &= ~1;
-                }
-                else if (evt.xbutton.button == 2) {
-                    mouseState &= ~(1 << 1);
-                }
-                else if (evt.xbutton.button == 3) {
-                    mouseState &= ~(1 << 2);
-                }
-            }
-            else if (evt.type == FocusIn) {
-                isFocused = true;
-            }
-            else if (evt.type == FocusOut) {
-                isFocused = false;
-            }
+        if (glfwWindowShouldClose(window)) {
+            isRunning = false;
+            break;
         }
 
         auto currentT = clock.now();
         float delta = std::chrono::duration_cast< std::chrono::duration< float, std::milli > >(currentT - lastT).count() / 1000.0f;
         lastT = currentT;
         Update(delta);
-
         Draw();
-        
-        glXSwapBuffers(dpy, wnd);
+
+        for (int i = 0; i < 32; i++) {
+            lastKeyState[i] = keyState[i];
+        }
+
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+
+        mouseState &= ~(3 << 6);                // clear scroll up/down flags (not used for now)
+        mouseState &= ~(7 << 3);                // clear last mouse state;
+        mouseState |= ((mouseState & 7) << 3);  // set last mouse state to current mouse state
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     Cleanup();
@@ -250,29 +111,24 @@ bool Application::IsButtonReleased(Mouse button) {
     uint8_t id = static_cast< uint8_t >(button);
     return !(mouseState & (1 << id)) && (mouseState & (1 << (id + 3)));
 }
-
 bool Application::IsKeyDown(Keys key) {
     unsigned int id = static_cast< unsigned int >(key);
-    KeyCode kcode = XKeysymToKeycode(dpy, id);
-    return (keyState[kcode / 8] & (1 << (kcode % 8)));
+    return keyState[id / 16] & (1 << (id % 16));
 }
 
 bool Application::IsKeyPressed(Keys key) {
     unsigned int id = static_cast< unsigned int >(key);
-    KeyCode kcode = XKeysymToKeycode(dpy, id);
-    return (keyState[kcode / 8] & (1 << (kcode % 8))) && !(lastKeyState[kcode / 8] & (1 << (kcode % 8)));
+    return (keyState[id / 16] & (1 << (id % 16))) && !(lastKeyState[id / 16] & (1 << (id % 16)));
 }
 
 bool Application::IsKeyUp(Keys key) {
     unsigned int id = static_cast< unsigned int >(key);
-    KeyCode kcode = XKeysymToKeycode(dpy, id);
-    return !(keyState[kcode / 8] & (1 << (kcode % 8)));
+    return !(keyState[id / 16] & (1 << (id % 16)));
 }
 
 bool Application::IsKeyReleased(Keys key) {
     unsigned int id = static_cast< unsigned int >(key);
-    KeyCode kcode = XKeysymToKeycode(dpy, id);
-    return !(keyState[kcode / 8] & (1 << (kcode % 8))) && (lastKeyState[kcode / 8] & (1 << (kcode % 8)));
+    return !(keyState[id / 16] & (1 << (id % 16))) && (lastKeyState[id / 16] & (1 << (id % 16)));
 }
 
 glm::vec2 Application::GetMousePos() {
@@ -283,15 +139,78 @@ glm::vec2 Application::GetMouseDelta() {
     return glm::vec2(mouseX - lastMouseX, mouseY - lastMouseY);
 }
 
+void Application::FramebufferSizeCallback(GLFWwindow* wnd, int w, int h) {
+    glViewport(0, 0, w, h);
+}
+
+void Application::KeyCallback(GLFWwindow* wnd, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_UNKNOWN) 
+        return;
+
+    if (action == GLFW_PRESS) {
+        keyState[key / 16] |= (1 << (key % 16));
+    }
+    else if (action == GLFW_RELEASE) {  
+        keyState[key / 16] &= ~(1 << (key % 16));
+    }
+}
+
+void Application::MouseButtonCallback(GLFWwindow* wnd, int button, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            mouseState |= 1;
+        }
+        else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+            mouseState |= (1 << 2);
+        }
+        else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            mouseState |= (1 << 1);
+        }
+    }
+    else if (action == GLFW_RELEASE) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            mouseState &= ~1;
+        }
+        else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+            mouseState &= ~(1 << 2);
+        }
+        else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            mouseState &= ~(1 << 1);
+        }
+    }
+}
+
+void Application::CursorPosCallback(GLFWwindow* wnd, double x, double y) {
+    if (firstMouse) {
+        firstMouse = false;
+        lastMouseX = x;
+        lastMouseY = y;
+    }
+    else {
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+    }
+
+    mouseX = x;
+    mouseY = y;
+}
+
+void Application::WindowFocusCallback(GLFWwindow* wnd, int focused) {
+    isFocused = focused;
+    if (!isFocused) {
+        glfwSetInputMode(wnd, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+}
+
 void Application::SetCursorLocked(bool locked) {
     if (isCursorLocked == locked) return;
     
     isCursorLocked = locked;
     if (isCursorLocked) {
-        XFixesHideCursor(dpy, DefaultRootWindow(dpy));
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     else {
-        XFixesShowCursor(dpy, DefaultRootWindow(dpy));
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
 

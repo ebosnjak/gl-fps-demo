@@ -74,7 +74,7 @@ void Projectile::OnHit(Entity* target) {
     if (target->type == EntityType::Enemy) {
         target->health -= damage;
         isAlive = false;
-        std::cout << "hit" << std::endl;
+        //std::cout << "hit" << std::endl;
     }
     else if (target->type == EntityType::World) {
         isAlive = false;
@@ -82,6 +82,6 @@ void Projectile::OnHit(Entity* target) {
     else if (target->type == EntityType::Player) {
         target->health -= damage;
         isAlive = false;
-        std::cout << "hit player" << std::endl;
+        //std::cout << "hit player" << std::endl;
     }
 }

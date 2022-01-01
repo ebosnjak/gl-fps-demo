@@ -424,8 +424,8 @@ Player& Player::operator=(Player&& player) {
 
 void Player::Update(float deltaTime) {
     glm::vec2 mouseDelta = gameEngine->GetMouseDelta();
-    float deltaYaw = -mouseDelta.x / 2700.0f * 3.14159f;
-    float deltaPitch = -mouseDelta.y / 2700.0f * 3.14159f;
+    float deltaYaw = -mouseDelta.x / 1200.0f * 3.14159f;
+    float deltaPitch = -mouseDelta.y / 1200.0f * 3.14159f;
 
     yaw += deltaYaw;
     pitch += deltaPitch;
@@ -649,7 +649,7 @@ void Enemy::Update(float deltaTime) {
     aimDirection = glm::normalize(gameEngine->player.GetPosition() - aimPosition);
 
     if (currentWeapon != nullptr) {
-        currentWeapon->OnPrimaryFireDown();
+        // currentWeapon->OnPrimaryFireDown();
         currentWeapon->Update(deltaTime);
     }
 
