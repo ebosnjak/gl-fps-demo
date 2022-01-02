@@ -1,0 +1,16 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl Scene_-_Root
+Ns 225.000000                   # specular exponent
+Ka 1.000000 1.000000 1.000000   # ambient
+Kd 0.800000 0.800000 0.800000   # diffuse
+Ks 0.500000 0.500000 0.500000   # specular
+Ke 0.0 0.0 0.0                  # emission
+Ni 1.450000                     # refractive index
+d 1.000000                      # transparency (1.0 is opaque)
+illum 2                         # illumination model
+map_Kd diffuse.png              # diffuse map
+map_Bump normal.png             # normal map
+map_Ks specular.png             # specular map
+
